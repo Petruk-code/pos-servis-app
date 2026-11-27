@@ -82,8 +82,8 @@ Belum layak produksi penuh:
 |---|---|---|---|
 | F4.1 | Monitoring & error tracking | [~] | Endpoint `/health` (DB check) dan halaman Audit Log owner ditambah. Log terpusat/Sentry/alert belum. |
 | F4.2 | Test cakupan kritis | [~] | Ditambah test supplier/PO/opname, health/export/audit access, dan edge case bayar-servis-ganda, POS stok/uang kurang, cancel ganda, duplikat request cancel. Concurrency multi-proses nyata belum. |
-| F4.3 | Performa & UX lapangan | [~] | Index DB, filter SLA overdue servis, guard double-submit+loading global pada submit form. Mobile pass penuh masih perlu. |
-| F4.4 | Proses release | [~] | Checklist deploy/rollback ditambahkan di docs. Changelog/versioning formal masih sederhana. |
+| F4.3 | Performa & UX lapangan | [~] | Index DB, filter SLA overdue servis, guard double-submit+loading global, CSS responsive mobile pass dasar. Uji perangkat nyata masih perlu. |
+| F4.4 | Proses release | [~] | Checklist deploy/rollback dan CHANGELOG.md ditambahkan. Versioning/tagging formal masih bisa diperkuat. |
 
 ## Fase 5 - UAT, Pelatihan, Go-Live (Gerbang Akhir)
 

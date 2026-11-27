@@ -261,6 +261,21 @@
             display: none;
         }
 
+        @media (max-width: 768px) {
+            .app-layout-row { flex-direction: column; padding-top: 0; }
+            .sidebar { position: relative; top:auto; left:auto; width:100%; max-width:100%; min-height:auto; height:auto; overflow-y:visible; margin-left:0; margin-right:0; padding: .75rem !important; }
+            .main-content { flex:0 0 100%; max-width:100%; min-height:auto; margin-left:0; padding-left:.75rem !important; padding-right:.75rem !important; }
+            html.sidebar-collapsed .main-content, html.sidebar-collapsed .sidebar { flex:0 0 100%; max-width:100%; width:100%; margin-left:0; }
+            .top-navbar { flex-wrap: wrap; gap: .5rem; padding-bottom: .5rem; }
+            .navbar-right { width:100%; justify-content: space-between; }
+            .stat-card .fs-4 { font-size: 1.1rem !important; }
+        }
+        .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        @media (max-width: 576px) {
+            .page-title-bar, .d-flex.justify-content-between.align-items-center.mb-4 { flex-direction: column; align-items: stretch !important; gap: .5rem; }
+            .page-title-bar .d-flex, .d-flex.justify-content-between.align-items-center.mb-4 .d-flex { flex-wrap: wrap; }
+        }
+
         /* ========================================
            NAVBAR ATAS
         ======================================== */
