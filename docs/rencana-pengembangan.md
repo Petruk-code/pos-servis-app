@@ -91,10 +91,10 @@ Belum layak produksi penuh:
 
 | ID | Item | Status | Kriteria Selesai |
 |---|---|---|---|
-| F5.1 | UAT manual end-to-end | [ ] | Semua role uji alur nyata di staging: login, POS, servis, sparepart, bayar, cancel, nota, laporan, notifikasi. |
+| F5.1 | UAT manual end-to-end | [~] | Template UAT dibuat di `docs/uat-checklist.md`; eksekusi UAT nyata di staging/target masih perlu. |
 | F5.2 | Uji backup/restore nyata | [ ] | Backup terjadwal berjalan; restore diuji di environment terpisah dan hasilnya valid. |
-| F5.3 | Pelatihan & SOP pengguna | [ ] | SOP singkat untuk Owner/Kasir/Gudang/Teknisi; akun produksi siap. |
-| F5.4 | Checklist go-live | [ ] | Domain/HTTPS, env produksi, queue/scheduler jika ada, monitoring aktif, rollback plan siap. |
+| F5.3 | Pelatihan & SOP pengguna | [~] | Checklist release/UAT tersedia; SOP pengguna final dan pelatihan masih perlu. |
+| F5.4 | Checklist go-live | [~] | `docs/checklist-release.md` dan `docs/uat-checklist.md` tersedia; eksekusi/validasi produksi masih perlu. |
 | F5.5 | Go-live & hypercare | [ ] | Deploy produksi, pemantauan awal, channel pelaporan bug, perbaikan cepat pasca rilis. |
 
 ## Cara Kerja Eksekusi
