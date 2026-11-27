@@ -116,15 +116,18 @@ Route::middleware('auth')->group(function () {
             ->name('transactions.show');
     });
 
-    // Khusus Kasir
-    Route::middleware('role:kasir')->group(function () {
+    // POS (Owner & Kasir)
+    Route::middleware('role:owner,kasir')->group(function () {
 
         Route::get('/pos', [PosController::class, 'index'])
             ->name('pos');
 
         Route::post('/pos/checkout', [PosController::class, 'checkout'])
             ->name('pos.checkout');
+    });
 
+    // Khusus Kasir
+    Route::middleware('role:kasir')->group(function () {
         // Pengajuan pembatalan oleh Kasir
         Route::post(
             '/transactions/{transaction}/request-cancellation',
