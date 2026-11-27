@@ -69,7 +69,7 @@ Belum layak produksi penuh:
 
 | ID | Item | Status | Kriteria Selesai |
 |---|---|---|---|
-| F3.1 | Laporan laba | [ ] | Laba kotor jasa vs sparepart, HPP/margin dasar, filter periode. |
+| F3.1 | Laporan laba | [~] | Laba kotor estimasi (omzet-HPP) ditambah via snapshot `unit_cost` pada detail transaksi/part servis. Pemisahan laba jasa vs sparepart bisa diperdalam. |
 | F3.2 | Closing kas harian | [ ] | Ringkasan kas masuk/keluar/metode bayar; rekonsiliasi kasir. |
 | F3.3 | Inventaris lanjutan | [ ] | Supplier/purchase order/stok opname/alert stok minimum. |
 | F3.4 | Export & arsip | [ ] | Export CSV/PDF sesuai kebutuhan, format rapi, akses dibatasi role. |
