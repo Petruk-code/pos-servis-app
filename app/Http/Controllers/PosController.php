@@ -145,6 +145,7 @@ class PosController extends Controller
                     'sku' => $product->sku,
                     'quantity' => $quantity,
                     'unit_price' => $item['unit_price'],
+                    'unit_cost' => (float) $product->cost_price,
                     'subtotal' => $item['subtotal'],
                 ]);
 

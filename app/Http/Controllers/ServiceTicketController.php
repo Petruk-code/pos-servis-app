@@ -280,6 +280,7 @@ class ServiceTicketController extends Controller
                     'product_id' => $product->id,
                     'quantity'   => $qty,
                     'unit_price' => $unitPrice,
+                    'unit_cost' => (float) $product->cost_price,
                     'subtotal'   => $subtotal,
                 ]);
             }
@@ -425,6 +426,7 @@ class ServiceTicketController extends Controller
                         'sku'          => $part->product->sku,
                         'quantity'     => $part->quantity,
                         'unit_price'   => (int) round((float) $part->unit_price),
+                        'unit_cost'    => (float) ($part->unit_cost ?? $part->product->cost_price ?? 0),
                         'subtotal'     => (int) round((float) $part->subtotal),
                     ]);
                 }

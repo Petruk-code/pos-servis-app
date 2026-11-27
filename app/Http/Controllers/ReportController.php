@@ -40,18 +40,21 @@ class ReportController extends Controller
 
         // Total produk terjual
         $totalProductsSold = DB::table('transaction_details')
-            ->join(
-                'transactions',
-                'transaction_details.transaction_id',
-                '=',
-                'transactions.id'
-            )
+            ->join('transactions', 'transaction_details.transaction_id', '=', 'transactions.id')
             ->where('transactions.status', 'completed')
             ->whereDate('transactions.created_at', '>=', $startDate)
             ->whereDate('transactions.created_at', '<=', $endDate)
             ->sum('transaction_details.quantity');
 
-        // Jumlah produk aktif yang terdaftar
+        $cogs = (float) DB::table('transaction_details')
+            ->join('transactions', 'transaction_details.transaction_id', '=', 'transactions.id')
+            ->where('transactions.status', 'completed')
+            ->whereDate('transactions.created_at', '>=', $startDate)
+            ->whereDate('transactions.created_at', '<=', $endDate)
+            ->selectRaw('COALESCE(SUM(transaction_details.unit_cost * transaction_details.quantity),0) as cogs')
+            ->value('cogs');
+        $grossProfit = (float) $totalSales - $cogs;
+
         $registeredProducts = Product::where('is_active', true)->count();
 
         // Produk terlaris
@@ -134,6 +137,8 @@ class ReportController extends Controller
             'serviceActive',
             'serviceRevenue',
             'servicePartsRevenue',
+            'cogs',
+            'grossProfit',
             'serviceByStatus',
             'topTechnicians'
         ));

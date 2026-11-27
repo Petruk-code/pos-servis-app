@@ -97,11 +97,11 @@
     <div class="col-md-3">
         <div class="card border-0 shadow-sm h-100">
             <div class="card-body">
-                <div class="text-muted small">Produk Terdaftar</div>
-                <h4 class="fw-bold mt-2">
-                    {{ number_format($registeredProducts, 0, ',', '.') }}
+                <div class="text-muted small">Laba Kotor (Est.)</div>
+                <h4 class="fw-bold mt-2 {{ ($grossProfit ?? 0) >= 0 ? 'text-success' : 'text-danger' }}">
+                    Rp {{ number_format($grossProfit ?? 0, 0, ',', '.') }}
                 </h4>
-                <small class="text-muted">Produk aktif</small>
+                <small class="text-muted">Omzet - HPP ({{ number_format($cogs ?? 0,0,',','.') }})</small>
             </div>
         </div>
     </div>

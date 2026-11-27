@@ -11,6 +11,7 @@ class ServiceTicketPart extends Model
         'product_id',
         'quantity',
         'unit_price',
+        'unit_cost',
         'subtotal',
     ];
 
