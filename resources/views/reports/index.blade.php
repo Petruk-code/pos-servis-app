@@ -257,6 +257,64 @@
     </div>
 </div>
 
+{{-- CLOSING KAS HARIAN --}}
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <div class="d-flex flex-wrap justify-content-between align-items-end gap-2 mb-3">
+            <div>
+                <h5 class="fw-bold mb-1">Closing Kas Harian</h5>
+                <div class="text-muted small">Ringkasan kas masuk transaksi selesai per metode bayar dan kasir.</div>
+            </div>
+            <form method="GET" action="{{ route('reports.index') }}" class="d-flex gap-2 align-items-end">
+                <input type="hidden" name="start_date" value="{{ $startDate }}">
+                <input type="hidden" name="end_date" value="{{ $endDate }}">
+                <div>
+                    <label class="form-label small mb-1">Tanggal Closing</label>
+                    <input type="date" name="closing_date" class="form-control form-control-sm" value="{{ $closingDate }}">
+                </div>
+                <button class="btn btn-sm btn-primary">Terapkan</button>
+            </form>
+        </div>
+        <div class="row g-3 mb-3">
+            <div class="col-md-3"><div class="border rounded p-2"><div class="text-muted small">Transaksi</div><div class="fw-bold">{{ number_format($closingSummary['total_transactions'] ?? 0,0,',','.') }}</div></div></div>
+            <div class="col-md-3"><div class="border rounded p-2"><div class="text-muted small">Total Tagihan</div><div class="fw-bold">Rp {{ number_format($closingSummary['total_amount'] ?? 0,0,',','.') }}</div></div></div>
+            <div class="col-md-3"><div class="border rounded p-2"><div class="text-muted small">Kas Masuk (Paid)</div><div class="fw-bold text-success">Rp {{ number_format($closingSummary['total_paid'] ?? 0,0,',','.') }}</div></div></div>
+            <div class="col-md-3"><div class="border rounded p-2"><div class="text-muted small">Sisa Tagihan</div><div class="fw-bold text-warning">Rp {{ number_format($closingSummary['total_due'] ?? 0,0,',','.') }}</div></div></div>
+        </div>
+        <div class="row g-3">
+            <div class="col-lg-6">
+                <div class="table-responsive">
+                    <table class="table table-sm align-middle mb-0">
+                        <thead><tr><th>Metode</th><th class="text-end">Transaksi</th><th class="text-end">Paid</th><th class="text-end">Sisa</th></tr></thead>
+                        <tbody>
+                        @forelse($closingByMethod as $row)
+                            <tr><td>{{ strtoupper($row->payment_method) }}</td><td class="text-end">{{ $row->total_transactions }}</td><td class="text-end">Rp {{ number_format($row->total_paid,0,',','.') }}</td><td class="text-end">Rp {{ number_format($row->total_due,0,',','.') }}</td></tr>
+                        @empty
+                            <tr><td colspan="4" class="text-center text-muted">Belum ada transaksi selesai pada tanggal ini.</td></tr>
+                        @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="table-responsive">
+                    <table class="table table-sm align-middle mb-0">
+                        <thead><tr><th>Kasir</th><th class="text-end">Transaksi</th><th class="text-end">Paid</th><th class="text-end">Sisa</th></tr></thead>
+                        <tbody>
+                        @forelse($closingByCashier as $row)
+                            <tr><td>{{ $row->name }}</td><td class="text-end">{{ $row->total_transactions }}</td><td class="text-end">Rp {{ number_format($row->total_paid,0,',','.') }}</td><td class="text-end">Rp {{ number_format($row->total_due,0,',','.') }}</td></tr>
+                        @empty
+                            <tr><td colspan="4" class="text-center text-muted">Belum ada data kasir.</td></tr>
+                        @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="small text-muted mt-2">Catatan: “Kas Masuk (Paid)” adalah uang diterima; untuk rekonsiliasi fisik, cocokkan total CASH dengan uang di laci kasir.</div>
+    </div>
+</div>
+
 {{-- RIWAYAT TRANSAKSI --}}
 <div class="card border-0 shadow-sm">
     <div class="card-body">

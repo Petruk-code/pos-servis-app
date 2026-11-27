@@ -123,6 +123,23 @@ class ReportController extends Controller
             ->limit(5)
             ->get();
 
+        $closingDate = $request->validate(['closing_date' => ['nullable', 'date']])['closing_date'] ?? now()->toDateString();
+        $closingBase = Transaction::query()->where('status', 'completed')->whereDate('created_at', $closingDate);
+        $closingByMethod = (clone $closingBase)
+            ->select('payment_method', DB::raw('COUNT(*) as total_transactions'), DB::raw('SUM(paid_amount) as total_paid'), DB::raw('SUM(total) as total_amount'), DB::raw('SUM(due_amount) as total_due'))
+            ->groupBy('payment_method')->orderBy('payment_method')->get();
+        $closingByCashier = (clone $closingBase)
+            ->join('users', 'transactions.user_id', '=', 'users.id')
+            ->select('users.name', DB::raw('COUNT(transactions.id) as total_transactions'), DB::raw('SUM(transactions.paid_amount) as total_paid'), DB::raw('SUM(transactions.total) as total_amount'), DB::raw('SUM(transactions.due_amount) as total_due'))
+            ->groupBy('users.id', 'users.name')->orderBy('users.name')->get();
+        $closingSummary = [
+            'total_transactions' => (clone $closingBase)->count(),
+            'total_amount' => (float) (clone $closingBase)->sum('total'),
+            'total_paid' => (float) (clone $closingBase)->sum('paid_amount'),
+            'total_due' => (float) (clone $closingBase)->sum('due_amount'),
+            'cash_paid' => (float) (clone $closingBase)->where('payment_method', 'cash')->sum('paid_amount'),
+        ];
+
         return view('reports.index', compact(
             'startDate',
             'endDate',
@@ -140,7 +157,11 @@ class ReportController extends Controller
             'cogs',
             'grossProfit',
             'serviceByStatus',
-            'topTechnicians'
+            'topTechnicians',
+            'closingDate',
+            'closingByMethod',
+            'closingByCashier',
+            'closingSummary'
         ));
     }
 

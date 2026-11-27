@@ -20,6 +20,9 @@ class Transaction extends Model
         'cancelled_at',
         'cancelled_by',
         'cancellation_reason',
+        'due_amount',
+        'payment_status',
+        'payment_notes',
     ];
 
     protected function casts(): array
@@ -30,6 +33,7 @@ class Transaction extends Model
             'change_amount' => 'decimal:2',
             'due_amount' => 'decimal:2',
             'cancelled_at' => 'datetime',
+            'payment_status' => 'string',
         ];
     }
 
