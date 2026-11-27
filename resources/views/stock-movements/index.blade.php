@@ -13,9 +13,11 @@
             Pantau seluruh aktivitas perubahan stok produk yang tercatat dalam sistem.
         </p>
 
+        @can('create', App\Models\StockMovement::class)
         <a href="{{ route('stock-movements.create') }}" class="btn btn-primary">
             <i class="bi bi-plus-lg"></i> Tambah Pergerakan Stok
         </a>
+        @endcan
     </div>
 
     {{-- Notifikasi berhasil --}}

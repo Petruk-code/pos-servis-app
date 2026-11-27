@@ -12,8 +12,9 @@ class OwnerController extends Controller
 {
     public function index(): View
     {
+        abort_unless(auth()->user()->role?->name === 'owner', 403);
         $totalEmployees = User::whereHas('role', function ($query) {
-            $query->whereIn('name', ['kasir', 'gudang']);
+            $query->whereIn('name', ['kasir', 'gudang', 'teknisi']);
         })->count();
 
         $totalProducts = Product::count();

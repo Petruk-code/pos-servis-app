@@ -116,7 +116,7 @@ Route::middleware('auth')->group(function () {
     });
 
     // Khusus Gudang
-    Route::middleware('role:gudang')->group(function () {
+    Route::middleware('role:gudang,owner')->group(function () {
 
         Route::get('/inventory', function () {
             return 'Halaman Inventaris Gudang';

@@ -14,7 +14,7 @@ class StockMovementController extends Controller
 {
     public function index(Request $request): View
     {
-        abort_unless(auth()->user()->role?->name === 'owner', 403);
+        $this->authorize('viewAny', StockMovement::class);
         $validated = $request->validate([
             'search' => ['nullable', 'string', 'max:100'],
         ]);
@@ -73,7 +73,7 @@ class StockMovementController extends Controller
 
     public function create(): View
     {
-        abort_unless(auth()->user()->role?->name === 'owner', 403);
+        $this->authorize('create', StockMovement::class);
         $products = Product::where('is_active', true)
             ->orderBy('name')
             ->get();
@@ -83,7 +83,7 @@ class StockMovementController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        abort_unless(auth()->user()->role?->name === 'owner', 403);
+        $this->authorize('create', StockMovement::class);
         $validated = $request->validate([
             'product_id' => ['required', 'exists:products,id'],
             'movement_type' => [
