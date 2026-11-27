@@ -78,6 +78,12 @@ SOP minimal:
 - Opsional untuk dev terkontrol: set `SEED_OWNER_PASSWORD`, `SEED_KASIR_PASSWORD`, `SEED_GUDANG_PASSWORD`, `SEED_TEKNISI_PASSWORD` sebelum `php artisan db:seed`. Jangan simpan nilai ini di file yang di-commit.
 - Sebelum produksi: ganti semua password default, nonaktifkan akun dummy, dan pastikan hanya akun aktif yang dibutuhkan.
 
+## Bukti Serah Terima Servis (F2.2)
+
+- Tiket servis menyimpan `intake_checklist`, `intake_photo_path`, `handover_photo_path`, `received_signature_name`, `pickup_signature_name`.
+- Foto disimpan di disk `public` (`storage/app/public/service-tickets/...`). Jalankan `php artisan storage:link` di environment target.
+- Cetak tanda terima/nota dapat diperluas untuk menampilkan checklist/foto/tanda terima sesuai kebutuhan operasional.
+
 ## Notifikasi Pelanggan (F2.1)
 
 - Notifikasi in-app internal tetap berjalan untuk owner/kasir/teknisi terkait.
