@@ -85,6 +85,12 @@
                             <td>
                                 <span class="fw-bold text-primary">{{ $ticket->ticket_number }}</span>
                                 <div class="small text-muted">{{ $ticket->created_at->format('d M Y H:i') }}</div>
+                                @if($ticket->estimated_finish_at)
+                                    <div class="small {{ (!in_array($ticket->status,['selesai','diambil','batal']) && $ticket->estimated_finish_at->isPast()) ? 'text-danger fw-semibold' : 'text-muted' }}">
+                                        SLA: {{ $ticket->estimated_finish_at->format('d/m H:i') }}
+                                        @if(!in_array($ticket->status,['selesai','diambil','batal']) && $ticket->estimated_finish_at->isPast()) OVERDUE @endif
+                                    </div>
+                                @endif
                             </td>
                             <td>
                                 <div class="fw-semibold">{{ $ticket->customer_name }}</div>

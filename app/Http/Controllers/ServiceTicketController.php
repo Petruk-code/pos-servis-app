@@ -91,6 +91,7 @@ class ServiceTicketController extends Controller
             'received_signature_name' => ['nullable', 'string', 'max:150'],
             'problem_description' => ['required', 'string'],
             'estimated_cost'     => ['nullable', 'numeric', 'min:0'],
+            'estimated_finish_at' => ['nullable', 'date'],
             'technician_id'      => ['nullable', 'exists:users,id'],
         ]);
         $validated['notify_customer'] = $request->boolean('notify_customer') && !empty($validated['customer_email']);
@@ -194,6 +195,7 @@ class ServiceTicketController extends Controller
             'technician_id'    => ['nullable', 'exists:users,id'],
             'technician_notes' => ['nullable', 'string'],
             'service_fee'      => ['required', 'numeric', 'min:0'],
+            'estimated_finish_at' => ['nullable', 'date'],
             'warranty_days'    => ['required', 'integer', 'min:0'],
             'customer_email'   => ['nullable', 'email', 'max:150'],
             'notify_customer'  => ['nullable', 'boolean'],

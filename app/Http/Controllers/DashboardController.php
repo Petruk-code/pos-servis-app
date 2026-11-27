@@ -189,6 +189,7 @@ class DashboardController extends Controller
             $inProgressCount = (clone $baseQuery)->where('status', 'dicek')->count();
             $waitingPartCount = (clone $baseQuery)->where('status', 'menunggu_sparepart')->count();
             $readyCount = (clone $baseQuery)->where('status', 'selesai')->count();
+            $overdueCount = (clone $baseQuery)->whereNotIn('status', ['selesai','diambil','batal'])->whereNotNull('estimated_finish_at')->where('estimated_finish_at', '<', now())->count();
             $completedToday = ServiceTicket::where('technician_id', $technicianId)
                 ->whereDate('completed_at', $today)
                 ->count();

@@ -69,6 +69,15 @@
             </div>
         </div>
     </div>
+    <div class="col-md-6 col-xl-4">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body">
+                <p class="text-muted mb-2">Overdue SLA</p>
+                <h4 class="fw-bold text-danger mb-0">{{ number_format($overdueCount ?? 0) }}</h4>
+                <small class="text-muted">Lewat estimasi selesai, belum selesai/diambil</small>
+            </div>
+        </div>
+    </div>
 </div>
 
 <div class="row g-3 mt-2">

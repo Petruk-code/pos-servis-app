@@ -140,6 +140,17 @@
                             <td class="text-muted">Estimasi Awal</td>
                             <td>Rp {{ number_format($ticket->estimated_cost, 0, ',', '.') }}</td>
                         </tr>
+                        <tr>
+                            <td class="text-muted">Estimasi Selesai</td>
+                            <td>
+                                @if($ticket->estimated_finish_at)
+                                    {{ $ticket->estimated_finish_at->format('d/m/Y H:i') }}
+                                    @if(!in_array($ticket->status,['selesai','diambil','batal']) && $ticket->estimated_finish_at->isPast())
+                                        <span class="badge bg-danger ms-1">OVERDUE</span>
+                                    @endif
+                                @else - @endif
+                            </td>
+                        </tr>
                     </table>
                 </div>
             </div>
@@ -196,6 +207,10 @@
                                 <input type="number" name="warranty_days" class="form-control" min="0"
                                        value="{{ old('warranty_days', $ticket->warranty_days) }}"
                                        {{ $ticket->transaction_id ? 'readonly' : '' }} required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Estimasi Selesai (SLA)</label>
+                                <input type="datetime-local" name="estimated_finish_at" class="form-control" value="{{ old('estimated_finish_at', optional($ticket->estimated_finish_at)->format('Y-m-d\\TH:i')) }}" {{ $ticket->transaction_id ? 'readonly' : '' }}>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Email Pelanggan</label>

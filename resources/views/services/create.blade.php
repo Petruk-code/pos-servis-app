@@ -126,6 +126,11 @@
                                 <div class="form-text">Isi 0 jika menunggu pengecekan teknisi.</div>
                             </div>
                             <div class="col-md-6">
+                                <label class="form-label">Estimasi Selesai (SLA)</label>
+                                <input type="datetime-local" name="estimated_finish_at" class="form-control" value="{{ old('estimated_finish_at') }}">
+                                <div class="form-text">Opsional, untuk overdue.</div>
+                            </div>
+                            <div class="col-md-12">
                                 <label class="form-label">Tugaskan ke Teknisi</label>
                                 <select name="technician_id" class="form-select">
                                     <option value="">-- Pilih Teknisi (Opsional) --</option>

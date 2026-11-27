@@ -27,6 +27,7 @@ class ServiceTicket extends Model
         'problem_description',
         'technician_notes',
         'estimated_cost',
+        'estimated_finish_at',
         'service_fee',
         'warranty_days',
         'status',
@@ -44,6 +45,7 @@ class ServiceTicket extends Model
     {
         return [
             'estimated_cost' => 'decimal:2',
+            'estimated_finish_at' => 'datetime',
             'paid_amount' => 'decimal:2',
             'due_amount' => 'decimal:2',
             'service_fee' => 'decimal:2',
