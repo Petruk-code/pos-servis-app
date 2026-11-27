@@ -48,7 +48,7 @@ Belum layak produksi penuh:
 | F1.3 | Retensi data sensitif | [ ] | Kebijakan `device_password`/data sensitif: enkripsi, akses terbatas, retensi/hapus setelah diambil. |
 | F1.4 | Otorisasi UI/policy polish | [~] | `@can` diterapkan di view servis/transaksi; policy+authorize ditambahkan untuk Category/Product/Employee. Audit view lain dan test otorisasi masih berlanjut. |
 | F1.5 | Audit log umum | [ ] | Log perubahan penting: user/role, harga/stok, pembatalan, setting, aksi sensitif. |
-| F1.6 | Validasi input & error handling | [ ] | Validasi server-side konsisten, pesan error aman, tidak bocor stack trace di produksi. |
+| F1.6 | Validasi input & error handling | [~] | Tidak ada `dd/dump/var_dump/print_r` di app/routes/tests; `APP_DEBUG` default false; login throttle ada; `abort(422)` diganti `ValidationException` di service parts. Audit validasi/error handling menyeluruh masih berlanjut. |
 
 ## Fase 2 - Operasional Servis
 
