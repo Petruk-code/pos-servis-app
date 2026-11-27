@@ -80,9 +80,9 @@ Belum layak produksi penuh:
 
 | ID | Item | Status | Kriteria Selesai |
 |---|---|---|---|
-| F4.1 | Monitoring & error tracking | [ ] | Log terpusat/Sentry/alert error; health check dasar. |
-| F4.2 | Test cakupan kritis | [ ] | Test untuk permission boundaries, concurrency stok, pembayaran/cancel edge case, fitur baru. |
-| F4.3 | Performa & UX lapangan | [ ] | Mobile-friendly teknisi/kasir, pencarian cepat, cegah double submit, loading/feedback jelas. |
+| F4.1 | Monitoring & error tracking | [~] | Endpoint `/health` (DB check) dan halaman Audit Log owner ditambah. Log terpusat/Sentry/alert belum. |
+| F4.2 | Test cakupan kritis | [~] | Test fitur baru/permission boundaries masih perlu ditambah; test existing tetap lulus. |
+| F4.3 | Performa & UX lapangan | [~] | Index DB untuk pencarian servis/transaksi/produk, filter SLA overdue di servis. Double-submit guard/loading/mobile pass masih perlu. |
 | F4.4 | Proses release | [ ] | Checklist migration/deploy/rollback, changelog, versioning sederhana. |
 
 ## Fase 5 - UAT, Pelatihan, Go-Live (Gerbang Akhir)
