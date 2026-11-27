@@ -41,7 +41,11 @@
 
                     <a href="{{ route('reports.export', ['start_date' => $startDate, 'end_date' => $endDate]) }}"
                        class="btn btn-outline-success">
-                        <i class="bi bi-download me-1"></i>Export CSV
+                        <i class="bi bi-filetype-csv me-1"></i>CSV
+                    </a>
+                    <a href="{{ route('reports.export-pdf', ['start_date' => $startDate, 'end_date' => $endDate]) }}"
+                       class="btn btn-outline-danger">
+                        <i class="bi bi-file-earmark-pdf me-1"></i>PDF
                     </a>
 
                     <a href="{{ route('reports.index') }}"

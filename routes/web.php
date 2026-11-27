@@ -74,6 +74,8 @@ Route::middleware('auth')->group(function () {
             ->name('reports.index');
         Route::get('/reports/export', [ReportController::class, 'export'])
             ->name('reports.export');
+        Route::get('/reports/export-pdf', [ReportController::class, 'exportPdf'])
+            ->name('reports.export-pdf');
 
         // Pembatalan transaksi langsung oleh Owner
         Route::post(

@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class ReportController extends Controller
 {
@@ -241,5 +242,50 @@ class ReportController extends Controller
 
             fclose($out);
         }, $filename, ['Content-Type' => 'text/csv; charset=UTF-8']);
+    }
+
+    public function exportPdf(Request $request)
+    {
+        abort_unless(auth()->user()->role?->name === 'owner', 403);
+        $validated = $request->validate([
+            'start_date' => ['nullable', 'date'],
+            'end_date' => ['nullable', 'date', 'after_or_equal:start_date'],
+        ]);
+        $startDate = $validated['start_date'] ?? now()->startOfMonth()->toDateString();
+        $endDate = $validated['end_date'] ?? now()->toDateString();
+
+        $completed = Transaction::query()->where('status', 'completed')
+            ->whereDate('created_at', '>=', $startDate)->whereDate('created_at', '<=', $endDate);
+        $totalSales = (float) (clone $completed)->sum('total');
+        $totalTransactions = (clone $completed)->count();
+        $totalProductsSold = (int) DB::table('transaction_details')
+            ->join('transactions', 'transaction_details.transaction_id', '=', 'transactions.id')
+            ->where('transactions.status', 'completed')
+            ->whereDate('transactions.created_at', '>=', $startDate)
+            ->whereDate('transactions.created_at', '<=', $endDate)
+            ->sum('transaction_details.quantity');
+        $cogs = (float) DB::table('transaction_details')
+            ->join('transactions', 'transaction_details.transaction_id', '=', 'transactions.id')
+            ->where('transactions.status', 'completed')
+            ->whereDate('transactions.created_at', '>=', $startDate)->whereDate('transactions.created_at', '<=', $endDate)
+            ->selectRaw('COALESCE(SUM(transaction_details.unit_cost * transaction_details.quantity),0) as cogs')->value('cogs');
+
+        $serviceBase = ServiceTicket::query()->whereDate('created_at', '>=', $startDate)->whereDate('created_at', '<=', $endDate);
+        $serviceRevenue = (float) (clone $serviceBase)->whereNotNull('transaction_id')->sum('service_fee');
+        $servicePartsRevenue = (float) DB::table('service_ticket_parts')
+            ->join('service_tickets', 'service_ticket_parts.service_ticket_id', '=', 'service_tickets.id')
+            ->whereNotNull('service_tickets.transaction_id')
+            ->whereDate('service_tickets.created_at', '>=', $startDate)->whereDate('service_tickets.created_at', '<=', $endDate)
+            ->sum('service_ticket_parts.subtotal');
+        $serviceTotal = (clone $serviceBase)->count();
+        $serviceCompleted = (clone $serviceBase)->whereIn('status', ['selesai', 'diambil'])->count();
+
+        $transactions = (clone $completed)->with('user')->latest()->limit(100)->get();
+        $services = (clone $serviceBase)->with(['technician','parts'])->latest()->limit(100)->get();
+
+        $pdf = Pdf::loadView('reports.pdf', compact(
+            'startDate','endDate','totalSales','totalTransactions','totalProductsSold','cogs','serviceRevenue','servicePartsRevenue','serviceTotal','serviceCompleted','transactions','services'
+        ))->setPaper('a4', 'portrait');
+        return $pdf->download("laporan-pos-servis-{$startDate}-sd-{$endDate}.pdf");
     }
 }
