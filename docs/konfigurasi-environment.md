@@ -66,6 +66,12 @@ SOP minimal:
 3. Uji restore berkala di DB staging terpisah; catat tanggal, hasil, dan petugas.
 4. Sebelum deploy/migration besar, ambil backup manual.
 
+## Retensi Data Sensitif (F1.3)
+
+- `ServiceTicket.device_password` disimpan terenkripsi (`encrypted` cast) dan hanya boleh dilihat owner/teknisi saat tiket aktif.
+- Sistem otomatis menghapus `device_password` saat tiket berstatus `diambil` atau `batal`, termasuk saat pembayaran servis.
+- SOP operasional: jangan meminta password perangkat bila tidak perlu; setelah unit diserahterimakan, pastikan field kosong; batasi akses akun owner/teknisi.
+
 ## Seed Aman (F0.5)
 
 - `UserSeeder` membuat akun default dengan password acak saat akun baru dibuat, dan mencetaknya ke console. Simpan segera, lalu ganti lewat UI/fitur ganti password.
