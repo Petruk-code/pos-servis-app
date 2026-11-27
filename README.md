@@ -315,16 +315,18 @@ php artisan db:seed --class=RoleSeeder
 php artisan db:seed --class=UserSeeder
 ```
 
-Akun seeder default (untuk development lokal):
+**Password seeder tidak hardcoded.** Saat akun baru dibuat, seeder mencetak password acak di terminal. Simpan dan ganti setelah login. Opsional: set `SEED_OWNER_PASSWORD`, `SEED_KASIR_PASSWORD`, `SEED_GUDANG_PASSWORD`, `SEED_TEKNISI_PASSWORD` di env sebelum seeding (dev lokal terkontrol; jangan commit).
+
+Akun seeder default:
 
 | Role | Email | Username | Password |
 |---|---|---|---|
-| Owner | `owner@tokokomputer.local` | `owner` | `owner` |
-| Kasir | `kasir@tokokomputer.local` | `kasir` | `kasir` |
-| Gudang | `gudang@tokokomputer.local` | `gudang` | `gudang` |
-| Teknisi | `teknisi@tokokomputer.local` | `teknisi` | `teknisi` |
+| Owner | `owner@tokokomputer.local` | `owner` | *acak saat seed / dari `SEED_OWNER_PASSWORD`* |
+| Kasir | `kasir@tokokomputer.local` | `kasir` | *acak saat seed / dari `SEED_KASIR_PASSWORD`* |
+| Gudang | `gudang@tokokomputer.local` | `gudang` | *acak saat seed / dari `SEED_GUDANG_PASSWORD`* |
+| Teknisi | `teknisi@tokokomputer.local` | `teknisi` | *acak saat seed / dari `SEED_TEKNISI_PASSWORD`* |
 
-> Ganti password akun seeder sebelum dipakai di environment bersama/production.
+> Wajib ganti password setelah login pertama. Nonaktifkan/hapus akun dummy sebelum production.
 
 ### 7. Jalankan Aplikasi
 

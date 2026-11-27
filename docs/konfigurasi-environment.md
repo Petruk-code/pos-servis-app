@@ -66,11 +66,17 @@ SOP minimal:
 3. Uji restore berkala di DB staging terpisah; catat tanggal, hasil, dan petugas.
 4. Sebelum deploy/migration besar, ambil backup manual.
 
+## Seed Aman (F0.5)
+
+- `UserSeeder` membuat akun default dengan password acak saat akun baru dibuat, dan mencetaknya ke console. Simpan segera, lalu ganti lewat UI/fitur ganti password.
+- Opsional untuk dev terkontrol: set `SEED_OWNER_PASSWORD`, `SEED_KASIR_PASSWORD`, `SEED_GUDANG_PASSWORD`, `SEED_TEKNISI_PASSWORD` sebelum `php artisan db:seed`. Jangan simpan nilai ini di file yang di-commit.
+- Sebelum produksi: ganti semua password default, nonaktifkan akun dummy, dan pastikan hanya akun aktif yang dibutuhkan.
+
 ## Checklist Keamanan Cepat
 
 - [ ] `APP_DEBUG=false` di staging/prod.
 - [ ] HTTPS aktif; `SESSION_SECURE_COOKIE=true`.
 - [ ] Secret tidak ada di git/log.
-- [ ] Password seed default diganti.
+- [ ] Password seed default diganti / akun dummy dinonaktifkan.
 - [ ] DB user bukan root.
 - [ ] Backup terjadwal dan restore pernah diuji.

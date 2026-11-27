@@ -6,6 +6,7 @@ use App\Models\Role;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class UserSeeder extends Seeder
 {
@@ -21,7 +22,6 @@ class UserSeeder extends Seeder
                 'name' => 'Owner Toko',
                 'username' => 'owner',
                 'email' => 'owner@tokokomputer.local',
-                'password' => Hash::make('password123'),
                 'role_id' => $ownerRole?->id,
                 'is_active' => true,
             ],
@@ -29,7 +29,6 @@ class UserSeeder extends Seeder
                 'name' => 'Kasir Utama',
                 'username' => 'kasir',
                 'email' => 'kasir@tokokomputer.local',
-                'password' => Hash::make('password123'),
                 'role_id' => $kasirRole?->id,
                 'is_active' => true,
             ],
@@ -37,7 +36,6 @@ class UserSeeder extends Seeder
                 'name' => 'Admin Gudang',
                 'username' => 'gudang',
                 'email' => 'gudang@tokokomputer.local',
-                'password' => Hash::make('password123'),
                 'role_id' => $gudangRole?->id,
                 'is_active' => true,
             ],
@@ -45,17 +43,30 @@ class UserSeeder extends Seeder
                 'name' => 'Teknisi Komputer',
                 'username' => 'teknisi',
                 'email' => 'teknisi@tokokomputer.local',
-                'password' => Hash::make('password123'),
                 'role_id' => $teknisiRole?->id,
                 'is_active' => true,
             ],
         ];
 
+        $generated = [];
+
         foreach ($users as $user) {
-            User::firstOrCreate(
+            $plain = env('SEED_' . strtoupper($user['username']) . '_PASSWORD') ?: Str::random(20);
+            $model = User::firstOrCreate(
                 ['username' => $user['username']],
-                $user
+                [...$user, 'password' => Hash::make($plain)]
             );
+
+            if ($model->wasRecentlyCreated) {
+                $generated[$user['username']] = $plain;
+            }
+        }
+
+        if ($generated !== []) {
+            $this->command?->warn('Akun seeder dibuat. Simpan password ini dan ganti setelah login:');
+            foreach ($generated as $username => $plain) {
+                $this->command?->line("  {$username}: {$plain}");
+            }
         }
     }
 }

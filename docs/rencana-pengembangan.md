@@ -35,7 +35,7 @@ Belum layak produksi penuh:
 | F0.2 | Staging environment | [ ] | Ada environment staging mirip produksi untuk UAT. |
 | F0.3 | DB user non-root | [~] | Panduan user PostgreSQL khusus ditambahkan; implementasi aktual di DB staging/prod perlu dilakukan saat environment tersedia. |
 | F0.4 | SOP backup/restore | [ ] | Jadwal backup, lokasi offsite/cloud/NAS, prosedur restore, dan uji restore tercatat. |
-| F0.5 | Data seed/akun default | [ ] | Password default seed diganti; akun dummy/nonaktif ditangani sebelum produksi. |
+| F0.5 | Data seed/akun default | [~] | `UserSeeder` tidak lagi hardcode password; password acak dicetak saat seed/opsional via `SEED_*_PASSWORD`. Kebijakan ganti password & nonaktifkan akun dummy masih perlu SOP sebelum produksi. |
 
 ## Fase 1 - Keamanan & Hardening Dasar
 
