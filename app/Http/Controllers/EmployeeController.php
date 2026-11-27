@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Role;
 use App\Models\User;
+use App\Support\Audit;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
@@ -65,7 +66,14 @@ class EmployeeController extends Controller
             'is_active' => ['required', 'boolean'],
         ]);
 
-        User::create($validated);
+        $employee = User::create($validated);
+        Audit::log('employee.created', $employee, [], [
+            'name' => $employee->name,
+            'username' => $employee->username,
+            'email' => $employee->email,
+            'role_id' => $employee->role_id,
+            'is_active' => $employee->is_active,
+        ], 'Membuat akun karyawan');
 
         return redirect()
             ->route('employees.index')
@@ -115,7 +123,9 @@ class EmployeeController extends Controller
             unset($validated['password']);
         }
 
+        $old = $employee->only(['name','username','email','role_id','is_active']);
         $employee->update($validated);
+        Audit::log('employee.updated', $employee, $old, $employee->only(['name','username','email','role_id','is_active']), 'Memperbarui akun karyawan');
 
         return redirect()
             ->route('employees.index')
@@ -138,7 +148,9 @@ class EmployeeController extends Controller
                 ->with('error', 'Akun tidak dapat dihapus karena sudah memiliki riwayat transaksi, pergerakan stok, atau tiket servis. Nonaktifkan akun tersebut sebagai gantinya.');
         }
 
+        $old = $employee->only(['name','username','email','role_id','is_active']);
         $employee->delete();
+        Audit::log('employee.deleted', null, $old, [], 'Menghapus akun karyawan: '.$old['username']);
 
         return redirect()
             ->route('employees.index')

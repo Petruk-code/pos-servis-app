@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Models\ServiceTicket;
 use App\Models\StockMovement;
 use App\Models\Transaction;
+use App\Support\Audit;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -189,6 +190,10 @@ class CancellationRequestController extends Controller
                 'reviewed_at' => now(),
                 'review_notes' => $validated['review_notes'] ?? null,
             ]);
+            Audit::log('cancellation_request.approved', $lockedRequest, ['status' => 'pending'], [
+                'status' => 'approved',
+                'transaction_id' => $transaction->id,
+            ], 'Pengajuan pembatalan disetujui');
 
             ServiceTicket::where('transaction_id', $transaction->id)
                 ->lockForUpdate()
@@ -272,6 +277,10 @@ class CancellationRequestController extends Controller
                 'reviewed_at' => now(),
                 'review_notes' => $validated['review_notes'],
             ]);
+            Audit::log('cancellation_request.rejected', $lockedRequest, ['status' => 'pending'], [
+                'status' => 'rejected',
+                'transaction_id' => $lockedRequest->transaction_id,
+            ], 'Pengajuan pembatalan ditolak');
         }, 3);
 
         return redirect()

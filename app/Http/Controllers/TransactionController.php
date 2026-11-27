@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Models\ServiceTicket;
 use App\Models\StockMovement;
 use App\Models\Transaction;
+use App\Support\Audit;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -251,6 +252,11 @@ class TransactionController extends Controller
             $transaction->cancellation_reason = $validated['cancellation_reason'];
 
             $transaction->save();
+            Audit::log('transaction.cancelled', $transaction, ['status' => 'completed'], [
+                'status' => 'cancelled',
+                'cancelled_by' => auth()->id(),
+                'cancellation_reason' => $validated['cancellation_reason'],
+            ], 'Transaksi dibatalkan langsung oleh owner');
 
             ServiceTicket::where('transaction_id', $transaction->id)
                 ->lockForUpdate()

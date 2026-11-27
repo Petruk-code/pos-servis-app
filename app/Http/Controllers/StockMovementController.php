@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Models\StockMovement;
+use App\Support\Audit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -142,7 +143,7 @@ class StockMovementController extends Controller
                     'stock' => $stockAfter,
                 ]);
 
-                StockMovement::create([
+                $movement = StockMovement::create([
                     'product_id' => $product->id,
                     'user_id' => auth()->id(),
                     'transaction_id' => null,
@@ -152,6 +153,13 @@ class StockMovementController extends Controller
                     'stock_after' => $stockAfter,
                     'notes' => $validated['notes'] ?? null,
                 ]);
+                Audit::log('stock_movement.created', $movement, [], [
+                    'product_id' => $product->id,
+                    'movement_type' => $movement->movement_type,
+                    'quantity' => $movement->quantity,
+                    'stock_before' => $stockBefore,
+                    'stock_after' => $stockAfter,
+                ], 'Pergerakan stok manual');
             });
         } catch (\RuntimeException $exception) {
             return back()

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
+use App\Support\Audit;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -45,7 +46,8 @@ class CategoryController extends Controller
             'is_active' => 'required|boolean',
         ]);
 
-        Category::create($validated);
+        $category = Category::create($validated);
+        Audit::log('category.created', $category, [], $category->only(['name','description','is_active']), 'Membuat kategori');
 
         return redirect()
             ->route('categories.index')
@@ -67,7 +69,9 @@ class CategoryController extends Controller
             'is_active' => 'required|boolean',
         ]);
 
+        $old = $category->only(['name','description','is_active']);
         $category->update($validated);
+        Audit::log('category.updated', $category, $old, $category->only(['name','description','is_active']), 'Memperbarui kategori');
 
         return redirect()
             ->route('categories.index')
@@ -77,7 +81,9 @@ class CategoryController extends Controller
     public function destroy(Category $category): RedirectResponse
     {
         $this->authorize('delete', $category);
+        $old = $category->only(['name','description','is_active']);
         $category->delete();
+        Audit::log('category.deleted', null, $old, [], 'Menghapus kategori: '.($old['name'] ?? ''));
 
         return redirect()
             ->route('categories.index')
