@@ -78,6 +78,15 @@ SOP minimal:
 - Opsional untuk dev terkontrol: set `SEED_OWNER_PASSWORD`, `SEED_KASIR_PASSWORD`, `SEED_GUDANG_PASSWORD`, `SEED_TEKNISI_PASSWORD` sebelum `php artisan db:seed`. Jangan simpan nilai ini di file yang di-commit.
 - Sebelum produksi: ganti semua password default, nonaktifkan akun dummy, dan pastikan hanya akun aktif yang dibutuhkan.
 
+## Kebijakan Secret & Kredensial (F1.2)
+
+- **Jangan commit secret**: `.env`, `.env.*`, key/cert, token, dump DB dengan data sensitif. `.gitignore` mencakup `.env*` yang umum.
+- **Sumber secret**: simpan di `.env` server/secret manager CI-CD, bukan di repo/chat/ticket publik.
+- **Rotasi**: ganti `APP_KEY` hanya dengan prosedur aman (perhatikan data terenkripsi), rotasi password DB/user API bila terekspos, cabut token lama.
+- **Akses minimum**: akun DB produksi khusus, hak minimal; akun owner/teknisi dibatasi orang yang butuh.
+- **Pemeriksaan**: sebelum push, jalankan scan secret sederhana (`git grep` pola key/password/token) dan pastikan `git status` bersih dari file env.
+- **Insiden**: jika secret ter-commit/ter-push, anggap bocor: rotasi segera, bersihkan history bila perlu, catat insiden.
+
 ## Checklist Keamanan Cepat
 
 - [ ] `APP_DEBUG=false` di staging/prod.

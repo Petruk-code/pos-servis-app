@@ -44,7 +44,7 @@ Belum layak produksi penuh:
 | ID | Item | Status | Kriteria Selesai |
 |---|---|---|---|
 | F1.1 | Konfigurasi produksi aman | [~] | `AppServiceProvider` force HTTPS saat production; `.env.example` diberi panduan secure cookie. Checklist deploy aktual (APP_DEBUG=false, APP_URL HTTPS, SESSION_SECURE_COOKIE=true) harus diverifikasi di staging/prod. |
-| F1.2 | Kebijakan secret & kredensial | [ ] | Secret hanya di env/secret manager; rotasi kredensial jika pernah terekspos. |
+| F1.2 | Kebijakan secret & kredensial | [~] | `.gitignore` diperketat untuk pola `.env*`; SOP secret/rotasi/pemeriksaan ditulis di `docs/konfigurasi-environment.md`. Rotasi secret yang pernah terekspos tetap tindakan operasional. |
 | F1.3 | Retensi data sensitif | [~] | `device_password` dienkripsi cast; akses view dibatasi owner/teknisi; otomatis di-null saat status `diambil/batal` atau pembayaran servis. Kebijakan SOP retensi dokumen masih perlu difinalkan. |
 | F1.4 | Otorisasi UI/policy polish | [~] | `@can` ditambah di view servis/transaksi/kategori/produk/karyawan/stok; policy+authorize untuk Category/Product/Employee/StockMovement; Report/Owner owner-only. Audit menyeluruh view/controller lain masih berlanjut. |
 | F1.5 | Audit log umum | [ ] | Log perubahan penting: user/role, harga/stok, pembatalan, setting, aksi sensitif. |
