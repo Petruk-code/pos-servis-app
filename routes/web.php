@@ -15,6 +15,7 @@ use App\Http\Controllers\CancellationRequestController;
 use App\Http\Controllers\ServiceTicketController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\StockOpnameController;
+use App\Http\Controllers\PurchaseOrderController;
 
 // Halaman utama diarahkan ke login
 Route::get('/', function () {
@@ -63,6 +64,10 @@ Route::middleware('auth')->group(function () {
 
         Route::resource('suppliers', SupplierController::class)
             ->except(['show']);
+
+        Route::resource('purchase-orders', PurchaseOrderController::class)->only(['index','create','store','show']);
+        Route::post('/purchase-orders/{purchaseOrder}/receive', [PurchaseOrderController::class, 'receive'])->name('purchase-orders.receive');
+        Route::post('/purchase-orders/{purchaseOrder}/cancel', [PurchaseOrderController::class, 'cancel'])->name('purchase-orders.cancel');
 
         // Manajemen laporan
         Route::get('/reports', [ReportController::class, 'index'])
