@@ -81,7 +81,7 @@ Belum layak produksi penuh:
 | ID | Item | Status | Kriteria Selesai |
 |---|---|---|---|
 | F4.1 | Monitoring & error tracking | [~] | Endpoint `/health` (DB check) dan halaman Audit Log owner ditambah. Log terpusat/Sentry/alert belum. |
-| F4.2 | Test cakupan kritis | [~] | Ditambah test supplier/PO receive/stok opname, health, report export, audit access. Masih bisa ditambah concurrency/cancel/payment edge case. |
+| F4.2 | Test cakupan kritis | [~] | Ditambah test supplier/PO/opname, health/export/audit access, dan edge case bayar-servis-ganda, POS stok/uang kurang, cancel ganda, duplikat request cancel. Concurrency multi-proses nyata belum. |
 | F4.3 | Performa & UX lapangan | [~] | Index DB, filter SLA overdue servis, guard double-submit+loading global pada submit form. Mobile pass penuh masih perlu. |
 | F4.4 | Proses release | [~] | Checklist deploy/rollback ditambahkan di docs. Changelog/versioning formal masih sederhana. |
 
