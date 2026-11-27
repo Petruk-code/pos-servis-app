@@ -15,7 +15,7 @@
     <div class="d-flex gap-2">
 
         {{-- Tombol pembatalan untuk Owner --}}
-        @if ($transaction->status === 'completed' && auth()->user()->role?->name === 'owner')
+        @can('cancel', $transaction)
             <button
                 type="button"
                 class="btn btn-danger"
@@ -24,23 +24,21 @@
             >
                 Batalkan Transaksi
             </button>
-        @endif
+        @endcan
 
         {{-- Tombol pengajuan pembatalan untuk Kasir --}}
-        @if (
-            $transaction->status === 'completed' &&
-            auth()->user()->role?->name === 'kasir' &&
-            !$pendingCancellationRequest
-        )
-            <button
-                type="button"
-                class="btn btn-warning"
-                data-bs-toggle="modal"
-                data-bs-target="#requestCancellationModal"
-            >
-                Ajukan Pembatalan
-            </button>
-        @endif
+        @can('requestCancellation', $transaction)
+            @if (!$pendingCancellationRequest)
+                <button
+                    type="button"
+                    class="btn btn-warning"
+                    data-bs-toggle="modal"
+                    data-bs-target="#requestCancellationModal"
+                >
+                    Ajukan Pembatalan
+                </button>
+            @endif
+        @endcan
 
 
         <button onclick="window.print()" class="btn btn-primary">
@@ -291,7 +289,7 @@
 </div>
 
 {{-- MODAL PEMBATALAN --}}
-@if ($transaction->status === 'completed' && auth()->user()->role?->name === 'owner')
+@can('cancel', $transaction)
 
     <div class="modal fade" id="cancelTransactionModal" tabindex="-1">
 
@@ -375,11 +373,8 @@
 
 
 {{-- MODAL PENGAJUAN PEMBATALAN KASIR --}}
-@if (
-    $transaction->status === 'completed' &&
-    auth()->user()->role?->name === 'kasir' &&
-    !$pendingCancellationRequest
-)
+@can('requestCancellation', $transaction)
+@if (!$pendingCancellationRequest)
 
     <div class="modal fade" id="requestCancellationModal" tabindex="-1">
 
@@ -459,6 +454,7 @@
     </div>
 
 @endif
+@endcan
 
 
 @endsection

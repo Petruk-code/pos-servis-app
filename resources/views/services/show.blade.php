@@ -287,7 +287,7 @@
                                 Kembali: Rp {{ number_format($ticket->transaction->change_amount, 0, ',', '.') }}
                             </div>
                         </div>
-                    @elseif(in_array(auth()->user()->role?->name, ['owner', 'kasir']))
+                    @elseif(auth()->user()->can('pay', $ticket))
                         <form action="{{ route('services.pay', $ticket) }}" method="POST">
                             @csrf
                             <div class="mb-3">
