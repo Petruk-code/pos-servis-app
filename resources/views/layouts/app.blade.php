@@ -530,7 +530,8 @@
                         <span class="menu-label">Pengajuan Pembatalan</span>
                     </a>
 
-                    <a href="{{ route('stock-movements.index') }}"
+                    <a href="{{ route('suppliers.index') }}" class="nav-link sidebar-menu {{ request()->routeIs('suppliers.*') ? 'active' : '' }}" title="Supplier"><i class="bi bi-truck"></i><span class="menu-label">Supplier</span></a>
+                <a href="{{ route('stock-movements.index') }}"
                        class="nav-link sidebar-menu {{ request()->routeIs('stock-movements.*') ? 'active' : '' }}"
                        title="Riwayat Pergerakan Stok">
                         <i class="bi bi-arrow-left-right"></i>
@@ -578,6 +579,7 @@
                     <span class="menu-label">Dashboard</span>
                 </a>
 
+                <a href="{{ route('suppliers.index') }}" class="nav-link sidebar-menu {{ request()->routeIs('suppliers.*') ? 'active' : '' }}" title="Supplier"><i class="bi bi-truck"></i><span class="menu-label">Supplier</span></a>
                 <a href="{{ route('stock-movements.index') }}"
                    class="nav-link sidebar-menu {{ request()->routeIs('stock-movements.*') ? 'active' : '' }}"
                    title="Riwayat Pergerakan Stok">

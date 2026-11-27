@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\Supplier;
 use App\Support\Audit;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -17,35 +18,41 @@ class ProductController extends Controller
         $this->authorize('viewAny', Product::class);
         $validated = $request->validate([
             'search' => ['nullable', 'string', 'max:100'],
+            'stock' => ['nullable', 'in:all,low,out'],
         ]);
 
         $search = trim($validated['search'] ?? '');
+        $stock = $validated['stock'] ?? 'all';
 
-        $products = Product::with('category')
+        $products = Product::with(['category','supplier'])
             ->when($search !== '', function ($query) use ($search) {
                 $query->where(function ($query) use ($search) {
                     $query->where('sku', 'like', "%{$search}%")
                         ->orWhere('name', 'like', "%{$search}%")
                         ->orWhereHas('category', function ($categoryQuery) use ($search) {
                             $categoryQuery->where('name', 'like', "%{$search}%");
+                        })
+                        ->orWhereHas('supplier', function ($q) use ($search) {
+                            $q->where('name', 'like', "%{$search}%");
                         });
                 });
             })
+            ->when($stock === 'low', fn($q) => $q->whereColumn('stock', '<=', 'minimum_stock')->where('stock', '>', 0))
+            ->when($stock === 'out', fn($q) => $q->where('stock', '<=', 0))
             ->latest()
             ->paginate(10)
             ->withQueryString();
 
-        return view('products.index', compact('products', 'search'));
+        return view('products.index', compact('products', 'search', 'stock'));
     }
 
     public function create(): View
     {
         $this->authorize('create', Product::class);
-        $categories = Category::where('is_active', true)
-            ->orderBy('name')
-            ->get();
+        $categories = Category::where('is_active', true)->orderBy('name')->get();
+        $suppliers = Supplier::where('is_active', true)->orderBy('name')->get();
 
-        return view('products.create', compact('categories'));
+        return view('products.create', compact('categories','suppliers'));
     }
 
     public function store(Request $request): RedirectResponse
@@ -53,6 +60,7 @@ class ProductController extends Controller
         $this->authorize('create', Product::class);
         $validated = $request->validate([
             'category_id' => ['nullable', 'exists:categories,id'],
+            'supplier_id' => ['nullable', 'exists:suppliers,id'],
             'sku' => ['required', 'string', 'max:100', 'unique:products,sku'],
             'name' => ['required', 'string', 'max:255'],
             'unit' => ['required', 'string', 'max:50'],
@@ -65,7 +73,7 @@ class ProductController extends Controller
         $validated['stock'] = 0;
 
         $product = Product::create($validated);
-        Audit::log('product.created', $product, [], $product->only(['sku','name','category_id','cost_price','selling_price','minimum_stock','is_active']), 'Membuat produk');
+        Audit::log('product.created', $product, [], $product->only(['sku','name','category_id','supplier_id','cost_price','selling_price','minimum_stock','is_active']), 'Membuat produk');
 
         return redirect()->route('products.index')
             ->with('success', 'Produk berhasil ditambahkan.');
@@ -74,11 +82,10 @@ class ProductController extends Controller
     public function edit(Product $product): View
     {
         $this->authorize('update', $product);
-        $categories = Category::where('is_active', true)
-            ->orderBy('name')
-            ->get();
+        $categories = Category::where('is_active', true)->orderBy('name')->get();
+        $suppliers = Supplier::where('is_active', true)->orderBy('name')->get();
 
-        return view('products.edit', compact('product', 'categories'));
+        return view('products.edit', compact('product', 'categories','suppliers'));
     }
 
     public function update(Request $request, Product $product): RedirectResponse
@@ -86,6 +93,7 @@ class ProductController extends Controller
         $this->authorize('update', $product);
         $validated = $request->validate([
             'category_id' => ['nullable', 'exists:categories,id'],
+            'supplier_id' => ['nullable', 'exists:suppliers,id'],
             'sku' => [
                 'required',
                 'string',
@@ -100,9 +108,9 @@ class ProductController extends Controller
             'is_active' => ['required', 'boolean'],
         ]);
 
-        $old = $product->only(['sku','name','category_id','cost_price','selling_price','minimum_stock','is_active']);
+        $old = $product->only(['sku','name','category_id','supplier_id','cost_price','selling_price','minimum_stock','is_active']);
         $product->update($validated);
-        Audit::log('product.updated', $product, $old, $product->only(['sku','name','category_id','cost_price','selling_price','minimum_stock','is_active']), 'Memperbarui produk');
+        Audit::log('product.updated', $product, $old, $product->only(['sku','name','category_id','supplier_id','cost_price','selling_price','minimum_stock','is_active']), 'Memperbarui produk');
 
         return redirect()->route('products.index')
             ->with('success', 'Produk berhasil diperbarui.');
@@ -121,7 +129,7 @@ class ProductController extends Controller
                 ->with('error', 'Produk tidak dapat dihapus karena memiliki riwayat pergerakan stok.');
         }
 
-        $old = $product->only(['sku','name','category_id','cost_price','selling_price','minimum_stock','is_active']);
+        $old = $product->only(['sku','name','category_id','supplier_id','cost_price','selling_price','minimum_stock','is_active']);
         $product->delete();
         Audit::log('product.deleted', null, $old, [], 'Menghapus produk: '.($old['sku'] ?? ''));
 

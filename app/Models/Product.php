@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable([
     'category_id',
+    'supplier_id',
     'sku',
     'name',
     'unit',
@@ -25,6 +26,11 @@ class Product extends Model
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
+    }
+
+    public function supplier(): BelongsTo
+    {
+        return $this->belongsTo(Supplier::class);
     }
 
     public function transactionDetails(): HasMany

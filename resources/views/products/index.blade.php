@@ -45,30 +45,11 @@
     <div class="card-body">
 
         {{-- FORM PENCARIAN --}}
-        <form action="{{ route('products.index') }}"
-            method="GET"
-            data-live-search
-            class="mb-3">
-
-            <div class="input-group">
-                <input
-                    type="text"
-                    name="search"
-                    class="form-control"
-                    placeholder="Cari nama produk, SKU, atau kategori..."
-                    value="{{ $search }}"
-                    data-live-search-input
-                    autocomplete="off"
-                >
-
-                <button type="submit" class="btn btn-primary">
-                    Cari
-                </button>
-
-                <a href="{{ route('products.index') }}"
-                class="btn btn-secondary">
-                    Reset
-                </a>
+        <form action="{{ route('products.index') }}" method="GET" data-live-search class="mb-3">
+            <div class="row g-2">
+                <div class="col-md-7"><input type="text" name="search" class="form-control" placeholder="Cari nama/SKU/kategori/supplier..." value="{{ $search }}" data-live-search-input autocomplete="off"></div>
+                <div class="col-md-3"><select name="stock" class="form-select"><option value="all" {{ ($stock ?? 'all')=='all'?'selected':'' }}>Semua stok</option><option value="low" {{ ($stock ?? '')=='low'?'selected':'' }}>Stok menipis</option><option value="out" {{ ($stock ?? '')=='out'?'selected':'' }}>Stok habis</option></select></div>
+                <div class="col-md-2 d-flex gap-2"><button type="submit" class="btn btn-primary w-100">Filter</button><a href="{{ route('products.index') }}" class="btn btn-secondary">Reset</a></div>
             </div>
         </form>
 
@@ -90,6 +71,7 @@
                         <th>SKU</th>
                         <th>Nama Produk</th>
                         <th>Kategori</th>
+                        <th>Supplier</th>
                         <th>Harga Jual</th>
                         <th>Stok</th>
                         <th>Status</th>
@@ -113,6 +95,7 @@
                             <td>
                                 {{ $product->category?->name ?? '-' }}
                             </td>
+                            <td>{{ $product->supplier?->name ?? '-' }}</td>
 
                             <td>
                                 Rp {{ number_format($product->selling_price, 0, ',', '.') }}
@@ -159,7 +142,7 @@
 
                     @empty
                         <tr>
-                            <td colspan="8" class="text-center text-muted py-4">
+                            <td colspan="9" class="text-center text-muted py-4">
 
                                 @if($search !== '')
                                     <i class="bi bi-search fs-3 d-block mb-2"></i>

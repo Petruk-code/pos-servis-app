@@ -13,6 +13,7 @@ use App\Http\Controllers\OwnerController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\CancellationRequestController;
 use App\Http\Controllers\ServiceTicketController;
+use App\Http\Controllers\SupplierController;
 
 // Halaman utama diarahkan ke login
 Route::get('/', function () {
@@ -57,6 +58,9 @@ Route::middleware('auth')->group(function () {
 
         // Manajemen karyawan
         Route::resource('employees', EmployeeController::class)
+            ->except(['show']);
+
+        Route::resource('suppliers', SupplierController::class)
             ->except(['show']);
 
         // Manajemen laporan
