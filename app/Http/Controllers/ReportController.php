@@ -129,8 +129,10 @@ class ReportController extends Controller
         $closingByMethod = (clone $closingBase)
             ->select('payment_method', DB::raw('COUNT(*) as total_transactions'), DB::raw('SUM(paid_amount) as total_paid'), DB::raw('SUM(total) as total_amount'), DB::raw('SUM(due_amount) as total_due'))
             ->groupBy('payment_method')->orderBy('payment_method')->get();
-        $closingByCashier = (clone $closingBase)
+        $closingByCashier = Transaction::query()
             ->join('users', 'transactions.user_id', '=', 'users.id')
+            ->where('transactions.status', 'completed')
+            ->whereDate('transactions.created_at', $closingDate)
             ->select('users.name', DB::raw('COUNT(transactions.id) as total_transactions'), DB::raw('SUM(transactions.paid_amount) as total_paid'), DB::raw('SUM(transactions.total) as total_amount'), DB::raw('SUM(transactions.due_amount) as total_due'))
             ->groupBy('users.id', 'users.name')->orderBy('users.name')->get();
         $closingSummary = [

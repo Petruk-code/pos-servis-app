@@ -18,7 +18,7 @@ class AuditLogController extends Controller
         $event = trim($validated['event'] ?? '');
         $user = trim($validated['user'] ?? '');
         $logs = AuditLog::query()->with('user')
-            ->when($event !== '', fn($q) => $q->where('event', 'like', "%{$event}%"))
+            ->when($event !== '', fn($q) => $q->where('action', 'like', "%{$event}%"))
             ->when($user !== '', fn($q) => $q->whereHas('user', fn($u) => $u->where('name', 'like', "%{$user}%")))
             ->latest()->paginate(25)->withQueryString();
         return view('audit-logs.index', compact('logs', 'event', 'user'));

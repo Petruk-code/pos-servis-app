@@ -10,7 +10,7 @@
 <tr>
 <td class="small">{{ $log->created_at->format('d/m/Y H:i:s') }}</td>
 <td>{{ $log->user?->name ?? '-' }}</td>
-<td><span class="badge bg-light text-dark border">{{ $log->event }}</span></td>
+<td><span class="badge bg-light text-dark border">{{ $log->action }}</span></td>
 <td class="small">{{ class_basename($log->auditable_type) }}#{{ $log->auditable_id }}</td>
 <td class="small">{{ $log->description }}</td>
 </tr>
