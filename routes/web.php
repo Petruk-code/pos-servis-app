@@ -147,6 +147,8 @@ Route::middleware('auth')->group(function () {
     // Pembayaran Servis ke Kasir (Owner & Kasir)
     Route::middleware('role:owner,kasir')->group(function () {
         Route::post('/services/{service}/pay', [ServiceTicketController::class, 'pay'])->name('services.pay');
+        Route::post('/services/{service}/warranty-claims', [ServiceTicketController::class, 'storeWarrantyClaim'])->name('services.warranty-claims.store');
+        Route::patch('/services/{service}/warranty-claims/{claim}', [ServiceTicketController::class, 'updateWarrantyClaim'])->name('services.warranty-claims.update');
     });
 
     Route::post('/notifications/read-all', function () {

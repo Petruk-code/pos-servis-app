@@ -157,7 +157,15 @@ class ServiceTicketController extends Controller
     {
         $this->authorize('view', $service);
 
-        $service->load(['technician', 'receiver', 'parts.product', 'transaction', 'statusHistories.user']);
+        $service->load(['technician', 'receiver', 'parts.product', 'transaction', 'statusHistories.user', 'warrantyClaims.reporter']);
+
+        $customerHistory = ServiceTicket::with('parts')
+            ->where('id', '!=', $service->id)
+            ->where(function ($q) use ($service) {
+                $q->where('customer_phone', $service->customer_phone);
+                if ($service->serial_number) $q->orWhere('serial_number', $service->serial_number);
+            })
+            ->latest()->limit(10)->get();
 
         $products = Product::where('is_active', true)
             ->where('stock', '>', 0)
@@ -173,6 +181,7 @@ class ServiceTicketController extends Controller
             'ticket'      => $service,
             'products'    => $products,
             'technicians' => $technicians,
+            'customerHistory' => $customerHistory,
         ]);
     }
 
@@ -458,6 +467,36 @@ class ServiceTicketController extends Controller
         $this->notifyServiceStatus($service, $fromStatus ?? $service->status, $service->status, $msg);
 
         return redirect()->route('services.show', $service)->with('success', $msg);
+    }
+
+    public function storeWarrantyClaim(Request $request, ServiceTicket $service): RedirectResponse
+    {
+        $this->authorize('update', $service);
+        $validated = $request->validate([
+            'claim_date' => ['required', 'date'],
+            'issue_description' => ['required', 'string', 'max:2000'],
+        ]);
+        $service->warrantyClaims()->create([
+            ...$validated,
+            'reported_by' => auth()->id(),
+            'status' => 'open',
+        ]);
+        return back()->with('success', 'Klaim garansi dicatat.');
+    }
+
+    public function updateWarrantyClaim(Request $request, ServiceTicket $service, \App\Models\ServiceWarrantyClaim $claim): RedirectResponse
+    {
+        $this->authorize('update', $service);
+        abort_unless($claim->service_ticket_id === $service->id, 404);
+        $validated = $request->validate([
+            'status' => ['required', 'in:open,in_progress,resolved,rejected'],
+            'resolution' => ['nullable', 'string', 'max:2000'],
+        ]);
+        $claim->update([
+            ...$validated,
+            'resolved_at' => in_array($validated['status'], ['resolved','rejected'], true) ? now() : null,
+        ]);
+        return back()->with('success', 'Klaim garansi diperbarui.');
     }
 
     private function notifyServiceStatus(ServiceTicket $ticket, string $fromStatus, string $toStatus, ?string $note = null): void

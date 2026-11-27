@@ -113,6 +113,26 @@
                             <td class="small">Masuk: {{ $ticket->received_signature_name ?: '-' }} | Ambil: {{ $ticket->pickup_signature_name ?: '-' }}</td>
                         </tr>
                         <tr>
+                            <td class="text-muted">Garansi</td>
+                            <td>
+                                @if($ticket->warranty_days > 0)
+                                    {{ $ticket->warranty_days }} hari
+                                    @if($ticket->warranty_ends_at)
+                                        (s/d {{ $ticket->warranty_ends_at->format('d/m/Y') }})
+                                        @if($ticket->is_under_warranty)
+                                            <span class="badge bg-success">Dalam Garansi</span>
+                                        @else
+                                            <span class="badge bg-secondary">Garansi Habis</span>
+                                        @endif
+                                    @else
+                                        <span class="badge bg-warning text-dark">Menunggu diambil/selesai</span>
+                                    @endif
+                                @else
+                                    -
+                                @endif
+                            </td>
+                        </tr>
+                        <tr>
                             <td class="text-muted">Keluhan Awal</td>
                             <td class="text-danger fw-semibold">{{ $ticket->problem_description }}</td>
                         </tr>
@@ -398,6 +418,57 @@
                             Jika pengerjaan sudah selesai, ubah status menjadi <strong>Selesai</strong> agar Kasir dapat memproses pembayaran.
                         </div>
                     @endif
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-transparent fw-bold">Garansi & Klaim</div>
+                <div class="card-body">
+                    @can('update', )
+                    <form action="{{ route('services.warranty-claims.store', ) }}" method="POST" class="row g-2 mb-3">
+                        @csrf
+                        <div class="col-md-4"><input type="date" name="claim_date" class="form-control" value="{{ now()->toDateString() }}" required></div>
+                        <div class="col-md-6"><input type="text" name="issue_description" class="form-control" placeholder="Keluhan klaim garansi" required></div>
+                        <div class="col-md-2"><button class="btn btn-outline-primary w-100">Catat</button></div>
+                    </form>
+                    @endcan
+                    @forelse(->warrantyClaims as )
+                        <div class="border rounded p-2 mb-2 small">
+                            <div class="d-flex justify-content-between"><strong>{{ ->claim_date->format('d/m/Y') }}</strong><span class="badge bg-light text-dark border">{{ ->status }}</span></div>
+                            <div>{{ ->issue_description }}</div>
+                            @if(->resolution)<div class="text-muted">Resolusi: {{ ->resolution }}</div>@endif
+                            @can('update', )
+                            <form action="{{ route('services.warranty-claims.update', [, ]) }}" method="POST" class="row g-1 mt-1">
+                                @csrf @method('PATCH')
+                                <div class="col-md-3"><select name="status" class="form-select form-select-sm">@foreach(['open','in_progress','resolved','rejected'] as )<option value="{{}}" {{->status==='selected':''}}>{{}}</option>@endforeach</select></div>
+                                <div class="col-md-7"><input type="text" name="resolution" class="form-control form-control-sm" value="{{ ->resolution }}" placeholder="Resolusi"></div>
+                                <div class="col-md-2"><button class="btn btn-sm btn-dark w-100">Update</button></div>
+                            </form>
+                            @endcan
+                        </div>
+                    @empty
+                        <div class="text-muted small">Belum ada klaim garansi.</div>
+                    @endforelse
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-transparent fw-bold">Riwayat Pelanggan / Perangkat</div>
+                <div class="card-body">
+                    @forelse(( ?? []) as )
+                        <div class="d-flex justify-content-between border-bottom py-1 small">
+                            <div>
+                                <a href="{{ route('services.show', ) }}" class="fw-semibold">{{ ->ticket_number }}</a>
+                                <div class="text-muted">{{ ->device_brand_model }} - {{ \Illuminate\Support\Str::limit(->problem_description, 60) }}</div>
+                            </div>
+                            <div class="text-end">
+                                <div>{{ ->created_at->format('d/m/Y') }}</div>
+                                <span class="badge bg-light text-dark border">{{ ->status }}</span>
+                            </div>
+                        </div>
+                    @empty
+                        <div class="text-muted small">Belum ada riwayat untuk no HP/serial ini.</div>
+                    @endforelse
                 </div>
             </div>
         </div>
