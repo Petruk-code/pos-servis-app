@@ -14,6 +14,7 @@ class ReportController extends Controller
 {
     public function index(Request $request): View
     {
+        abort_unless(auth()->user()->role?->name === 'owner', 403);
         // Periode default: bulan ini
         $validated = $request->validate([
             'start_date' => ['nullable', 'date'],
@@ -140,6 +141,7 @@ class ReportController extends Controller
 
     public function export(Request $request): StreamedResponse
     {
+        abort_unless(auth()->user()->role?->name === 'owner', 403);
         $validated = $request->validate([
             'start_date' => ['nullable', 'date'],
             'end_date' => ['nullable', 'date', 'after_or_equal:start_date'],

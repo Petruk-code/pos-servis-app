@@ -14,6 +14,7 @@ class StockMovementController extends Controller
 {
     public function index(Request $request): View
     {
+        abort_unless(auth()->user()->role?->name === 'owner', 403);
         $search = trim($request->input('search', ''));
 
         $movements = StockMovement::with(['product', 'user'])
@@ -69,6 +70,7 @@ class StockMovementController extends Controller
 
     public function create(): View
     {
+        abort_unless(auth()->user()->role?->name === 'owner', 403);
         $products = Product::where('is_active', true)
             ->orderBy('name')
             ->get();
@@ -78,6 +80,7 @@ class StockMovementController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
+        abort_unless(auth()->user()->role?->name === 'owner', 403);
         $validated = $request->validate([
             'product_id' => ['required', 'exists:products,id'],
             'movement_type' => [
