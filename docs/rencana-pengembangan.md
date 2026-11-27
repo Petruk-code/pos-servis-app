@@ -71,7 +71,7 @@ Belum layak produksi penuh:
 |---|---|---|---|
 | F3.1 | Laporan laba | [~] | Laba kotor estimasi (omzet-HPP) ditambah via snapshot `unit_cost` pada detail transaksi/part servis. Pemisahan laba jasa vs sparepart bisa diperdalam. |
 | F3.2 | Closing kas harian | [~] | Laporan owner punya closing harian: total paid/due, ringkasan per metode bayar dan per kasir. Kas keluar/rekonsiliasi fisik formal belum. |
-| F3.3 | Inventaris lanjutan | [~] | Supplier master + relasi produk, filter stok menipis/habis di produk, alert minimum sudah ada di dashboard/produk. PO/stok opname belum. |
+| F3.3 | Inventaris lanjutan | [~] | Supplier master + relasi produk, filter stok menipis/habis, stok opname sederhana (adjustment + audit). PO/purchase order belum. |
 | F3.4 | Export & arsip | [ ] | Export CSV/PDF sesuai kebutuhan, format rapi, akses dibatasi role. |
 
 ## Fase 4 - Kualitas, Monitoring, Skalabilitas
