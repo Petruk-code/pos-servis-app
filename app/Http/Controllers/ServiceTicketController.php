@@ -30,9 +30,11 @@ class ServiceTicketController extends Controller
         $validated = $request->validate([
             'status' => ['nullable', 'in:antre,dicek,menunggu_sparepart,selesai,diambil,batal'],
             'search' => ['nullable', 'string', 'max:100'],
+            'overdue' => ['nullable', 'in:1'],
         ]);
         $status = $validated['status'] ?? null;
         $search = trim($validated['search'] ?? '');
+        $overdue = $validated['overdue'] ?? null;
 
         $likeOperator = DB::connection()->getDriverName() === 'pgsql' ? 'ilike' : 'like';
 
@@ -58,7 +60,7 @@ class ServiceTicketController extends Controller
             ->paginate(15)
             ->withQueryString();
 
-        return view('services.index', compact('tickets', 'status', 'search'));
+        return view('services.index', compact('tickets', 'status', 'search', 'overdue'));
     }
 
     public function create(): View
