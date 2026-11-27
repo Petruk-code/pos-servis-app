@@ -35,6 +35,20 @@
                                        value="{{ old('customer_phone') }}" placeholder="0812..." required>
                                 @error('customer_phone')<div class="invalid-feedback">{{ $message }}</div>@enderror
                             </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Email Pelanggan (opsional)</label>
+                                <input type="email" name="customer_email" class="form-control @error('customer_email') is-invalid @enderror"
+                                       value="{{ old('customer_email') }}" placeholder="pelanggan@email.com">
+                                @error('customer_email')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                            </div>
+                            <div class="col-md-6 d-flex align-items-end">
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" name="notify_customer" value="1" id="notify_customer" {{ old('notify_customer') ? 'checked' : '' }}>
+                                    <label class="form-check-label" for="notify_customer">
+                                        Kirim update status ke email pelanggan
+                                    </label>
+                                </div>
+                            </div>
                             <div class="col-md-5">
                                 <label class="form-label">Jenis Perangkat <span class="text-danger">*</span></label>
                                 <select name="device_type" class="form-select" required>

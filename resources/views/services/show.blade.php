@@ -54,6 +54,15 @@
                             <td class="fw-semibold">{{ $ticket->customer_name }} ({{ $ticket->customer_phone }})</td>
                         </tr>
                         <tr>
+                            <td class="text-muted">Email</td>
+                            <td>
+                                {{ $ticket->customer_email ?: '-' }}
+                                @if($ticket->notify_customer)
+                                    <span class="badge bg-info text-dark ms-1">Notifikasi Email Aktif</span>
+                                @endif
+                            </td>
+                        </tr>
+                        <tr>
                             <td class="text-muted">Perangkat</td>
                             <td class="fw-semibold">{{ $ticket->device_type }} - {{ $ticket->device_brand_model }}</td>
                         </tr>
@@ -145,6 +154,20 @@
                                 <input type="number" name="warranty_days" class="form-control" min="0"
                                        value="{{ old('warranty_days', $ticket->warranty_days) }}"
                                        {{ $ticket->transaction_id ? 'readonly' : '' }} required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Email Pelanggan</label>
+                                <input type="email" name="customer_email" class="form-control"
+                                       value="{{ old('customer_email', $ticket->customer_email) }}"
+                                       {{ $ticket->transaction_id ? 'readonly' : '' }}>
+                            </div>
+                            <div class="col-md-6 d-flex align-items-end">
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" name="notify_customer" value="1" id="notify_customer_show"
+                                           {{ old('notify_customer', $ticket->notify_customer) ? 'checked' : '' }}
+                                           {{ $ticket->transaction_id ? 'disabled' : '' }}>
+                                    <label class="form-check-label" for="notify_customer_show">Kirim update status ke email</label>
+                                </div>
                             </div>
                         </div>
 

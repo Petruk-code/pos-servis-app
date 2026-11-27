@@ -12,6 +12,8 @@ class ServiceTicket extends Model
         'ticket_number',
         'customer_name',
         'customer_phone',
+        'customer_email',
+        'notify_customer',
         'device_type',
         'device_brand_model',
         'serial_number',
@@ -38,6 +40,7 @@ class ServiceTicket extends Model
             'completed_at' => 'datetime',
             'picked_up_at' => 'datetime',
             'device_password' => 'encrypted',
+            'notify_customer' => 'boolean',
         ];
     }
 

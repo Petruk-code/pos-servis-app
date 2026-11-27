@@ -10,7 +10,9 @@ use App\Models\ServiceTicketStatusHistory;
 use App\Models\StockMovement;
 use App\Models\Transaction;
 use App\Models\User;
+use App\Notifications\CustomerServiceTicketStatusNotification;
 use App\Notifications\ServiceTicketStatusNotification;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -75,6 +77,8 @@ class ServiceTicketController extends Controller
         $validated = $request->validate([
             'customer_name'      => ['required', 'string', 'max:150'],
             'customer_phone'     => ['required', 'string', 'max:25'],
+            'customer_email'     => ['nullable', 'email', 'max:150'],
+            'notify_customer'    => ['nullable', 'boolean'],
             'device_type'        => ['required', 'string', 'max:100'],
             'device_brand_model' => ['required', 'string', 'max:150'],
             'serial_number'      => ['nullable', 'string', 'max:100'],
@@ -84,6 +88,7 @@ class ServiceTicketController extends Controller
             'estimated_cost'     => ['nullable', 'numeric', 'min:0'],
             'technician_id'      => ['nullable', 'exists:users,id'],
         ]);
+        $validated['notify_customer'] = $request->boolean('notify_customer') && !empty($validated['customer_email']);
 
         $ticket = DB::transaction(function () use ($validated) {
             $today = now()->format('Ymd');
@@ -170,7 +175,10 @@ class ServiceTicketController extends Controller
             'technician_notes' => ['nullable', 'string'],
             'service_fee'      => ['required', 'numeric', 'min:0'],
             'warranty_days'    => ['required', 'integer', 'min:0'],
+            'customer_email'   => ['nullable', 'email', 'max:150'],
+            'notify_customer'  => ['nullable', 'boolean'],
         ]);
+        $validated['notify_customer'] = $request->boolean('notify_customer') && !empty($validated['customer_email'] ?? $service->customer_email);
 
         if ($validated['status'] === 'selesai' && !$service->completed_at) {
             $validated['completed_at'] = now();
@@ -406,6 +414,12 @@ class ServiceTicketController extends Controller
 
         foreach ($recipients as $user) {
             $user->notify(new ServiceTicketStatusNotification($ticket, $fromStatus, $toStatus, $note));
+        }
+
+        $notifiableStatuses = ['dicek', 'menunggu_sparepart', 'selesai', 'diambil', 'batal'];
+        if ($ticket->notify_customer && $ticket->customer_email && in_array($toStatus, $notifiableStatuses, true)) {
+            Notification::route('mail', $ticket->customer_email)
+                ->notify(new CustomerServiceTicketStatusNotification($ticket, $fromStatus, $toStatus, $note));
         }
     }
 }
