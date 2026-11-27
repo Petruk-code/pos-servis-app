@@ -46,9 +46,9 @@ Belum layak produksi penuh:
 | F1.1 | Konfigurasi produksi aman | [~] | `AppServiceProvider` force HTTPS saat production; `.env.example` diberi panduan secure cookie. Checklist deploy aktual (APP_DEBUG=false, APP_URL HTTPS, SESSION_SECURE_COOKIE=true) harus diverifikasi di staging/prod. |
 | F1.2 | Kebijakan secret & kredensial | [~] | `.gitignore` diperketat untuk pola `.env*`; SOP secret/rotasi/pemeriksaan ditulis di `docs/konfigurasi-environment.md`. Rotasi secret yang pernah terekspos tetap tindakan operasional. |
 | F1.3 | Retensi data sensitif | [~] | `device_password` dienkripsi cast; akses view dibatasi owner/teknisi; otomatis di-null saat status `diambil/batal` atau pembayaran servis. Kebijakan SOP retensi dokumen masih perlu difinalkan. |
-| F1.4 | Otorisasi UI/policy polish | [~] | `@can` ditambah di view servis/transaksi/kategori/produk/karyawan/stok; policy+authorize untuk Category/Product/Employee/StockMovement; Report/Owner owner-only. Audit menyeluruh view/controller lain masih berlanjut. |
+| F1.4 | Otorisasi UI/policy polish | [~] | `@can` di view sensitif; policy+authorize untuk Category/Product/Employee/StockMovement/ServiceTicket/Transaction/CancellationRequest; defense-in-depth pada POS/Owner/Report/StockMovement. Final audit pass awal selesai, perlu review berkala saat fitur baru. |
 | F1.5 | Audit log umum | [~] | Tabel `audit_logs` + `Audit` helper ditambahkan; dicatat untuk employee/category/product CRUD, stock movement manual, cancel transaksi, approve/reject pembatalan. Cakupan setting/aksi sensitif lain masih bisa diperluas. |
-| F1.6 | Validasi input & error handling | [~] | Tidak ada `dd/dump/var_dump/print_r` di app/routes/tests; `APP_DEBUG` default false; login throttle ada; `abort(422)` diganti `ValidationException`; search/filter index endpoint kini divalidasi (max length/date/enum). Audit error handling & validasi menyeluruh masih berlanjut. |
+| F1.6 | Validasi input & error handling | [~] | Tidak ada debug dump; `APP_DEBUG` default false; login throttle+max length; `abort(422)` diganti `ValidationException`; search/filter index endpoint divalidasi. Final audit pass awal selesai, perlu review berkala saat fitur baru. |
 
 ## Fase 2 - Operasional Servis
 
