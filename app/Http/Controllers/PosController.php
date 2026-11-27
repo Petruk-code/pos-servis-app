@@ -16,6 +16,7 @@ class PosController extends Controller
 {
     public function index(): View
     {
+        abort_unless(auth()->user()->role?->name === 'kasir', 403);
         $products = Product::with('category')
             ->where('is_active', true)
             ->where('stock', '>', 0)
@@ -27,6 +28,7 @@ class PosController extends Controller
 
     public function checkout(Request $request): JsonResponse
     {
+        abort_unless(auth()->user()->role?->name === 'kasir', 403);
         $validated = $request->validate([
             'items' => ['required', 'array', 'min:1'],
             'items.*.product_id' => [
