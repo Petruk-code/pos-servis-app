@@ -44,6 +44,7 @@ class ServiceTicketController extends Controller
                 });
             })
             ->when($status, fn($q) => $q->where('status', $status))
+            ->when($overdue === '1', fn($q) => $q->whereNotIn('status', ['selesai','diambil','batal'])->whereNotNull('estimated_finish_at')->where('estimated_finish_at', '<', now()))
             ->when($search, function ($q) use ($search, $likeOperator) {
                 $q->where(function ($sub) use ($search, $likeOperator) {
                     $sub->where('ticket_number', $likeOperator, "%{$search}%")

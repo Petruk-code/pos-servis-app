@@ -477,6 +477,7 @@
                     <span class="menu-label">Karyawan</span>
                 </a>
 
+                <a href="{{ route('audit-logs.index') }}" class="nav-link sidebar-menu {{ request()->routeIs('audit-logs.*') ? 'active' : '' }}" title="Audit Log"><i class="bi bi-shield-check"></i><span class="menu-label">Audit Log</span></a>
                 <a href="{{ route('reports.index') }}"
                    class="nav-link sidebar-menu {{ request()->routeIs('reports.*') ? 'active' : '' }}"
                    title="Laporan">

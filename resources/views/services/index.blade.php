@@ -20,8 +20,8 @@
     <div class="card shadow-sm border-0 mb-4">
         <div class="card-body">
             <form method="GET" action="{{ route('services.index') }}" class="row g-2 align-items-end">
-                <div class="col-md-5">
-                    <label class="form-label small fw-semibold">Cari Tiket / Pelanggan / Perangkat / SN</label>
+                <div class="col-md-4">
+                    <label class="form-label small fw-semibold">Cari Tiket / Pelanggan / HP / Perangkat / SN</label>
                     <input type="text" name="search" class="form-control" value="{{ $search }}"
                            placeholder="Contoh: SRV-2026..., Budi, Asus ROG, SN...">
                 </div>
@@ -37,7 +37,7 @@
                         <option value="batal" {{ $status === 'batal' ? 'selected' : '' }}>Dibatalkan</option>
                     </select>
                 </div>
-                <div class="col-md-3 d-flex gap-2">
+                <div class="col-md-3">`r`n                    <label class="form-label small fw-semibold">SLA</label>`r`n                    <select name="overdue" class="form-select"><option value="">Semua</option><option value="1" {{ request('overdue')==='1' ? 'selected' : '' }}>Overdue saja</option></select>`r`n                </div>`r`n                <div class="col-md-2 d-flex gap-2">
                     <button type="submit" class="btn btn-dark w-100"><i class="bi bi-search me-1"></i> Filter</button>
                     <a href="{{ route('services.index') }}" class="btn btn-outline-secondary">Reset</a>
                 </div>

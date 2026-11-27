@@ -16,6 +16,10 @@ use App\Http\Controllers\ServiceTicketController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\StockOpnameController;
 use App\Http\Controllers\PurchaseOrderController;
+use App\Http\Controllers\HealthController;
+use App\Http\Controllers\AuditLogController;
+
+Route::get('/health', HealthController::class)->name('health');
 
 // Halaman utama diarahkan ke login
 Route::get('/', function () {
@@ -76,6 +80,7 @@ Route::middleware('auth')->group(function () {
             ->name('reports.export');
         Route::get('/reports/export-pdf', [ReportController::class, 'exportPdf'])
             ->name('reports.export-pdf');
+        Route::get('/audit-logs', [AuditLogController::class, 'index'])->name('audit-logs.index');
 
         // Pembatalan transaksi langsung oleh Owner
         Route::post(
