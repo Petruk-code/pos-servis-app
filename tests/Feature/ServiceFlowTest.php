@@ -60,6 +60,7 @@ class ServiceFlowTest extends TestCase
         $this->actingAs($kasir)
             ->post(route('services.pay', $ticket), [
                 'paid_amount' => 150000,
+                'payment_method' => 'cash',
             ])
             ->assertRedirect(route('services.show', $ticket));
 
@@ -104,7 +105,7 @@ class ServiceFlowTest extends TestCase
             'quantity' => 1,
         ])->assertRedirect();
 
-        $this->actingAs($kasir)->post(route('services.pay', $ticket), ['paid_amount' => 200000])
+        $this->actingAs($kasir)->post(route('services.pay', $ticket), ['paid_amount' => 200000, 'payment_method' => 'cash'])
             ->assertRedirect(route('services.show', $ticket));
 
         $ticket->refresh();

@@ -28,6 +28,7 @@ class Transaction extends Model
             'total' => 'decimal:2',
             'paid_amount' => 'decimal:2',
             'change_amount' => 'decimal:2',
+            'due_amount' => 'decimal:2',
             'cancelled_at' => 'datetime',
         ];
     }

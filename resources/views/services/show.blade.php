@@ -338,31 +338,61 @@
                         <strong>Rp {{ number_format($ticket->parts->sum('subtotal'), 0, ',', '.') }}</strong>
                     </div>
                     <hr>
-                    <div class="d-flex justify-content-between mb-3">
+                    @php
+                        $grandTotal = (int) round($ticket->grand_total);
+                        $paidTotal = (int) round($ticket->paid_amount);
+                        $dueTotal = max(0, $grandTotal - $paidTotal);
+                    @endphp
+                    <div class="d-flex justify-content-between mb-2">
                         <span class="fw-bold">TOTAL TAGIHAN:</span>
-                        <span class="fw-bold text-primary fs-5">Rp {{ number_format($ticket->grand_total, 0, ',', '.') }}</span>
+                        <span class="fw-bold text-primary fs-5">Rp {{ number_format($grandTotal, 0, ',', '.') }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2 small">
+                        <span>Sudah Dibayar:</span>
+                        <span class="text-success">Rp {{ number_format($paidTotal, 0, ',', '.') }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-3 small">
+                        <span>Sisa Tagihan:</span>
+                        <span class="{{ $dueTotal > 0 ? 'text-danger fw-semibold' : 'text-success' }}">Rp {{ number_format($dueTotal, 0, ',', '.') }}</span>
                     </div>
 
-                    @if($ticket->transaction_id)
+                    @if($ticket->payment_status === 'paid')
                         <div class="alert alert-success mb-0">
-                            <div class="fw-semibold">Sudah dibayar lunas pada {{ $ticket->picked_up_at?->format('d M Y H:i') }}.</div>
+                            <div class="fw-semibold">Pembayaran lunas {{ $ticket->picked_up_at?->format('d M Y H:i') }}.</div>
                             <div class="small mt-1">
-                                No. Invoice: {{ $ticket->transaction->invoice_number }} |
-                                Bayar: Rp {{ number_format($ticket->transaction->paid_amount, 0, ',', '.') }} |
-                                Kembali: Rp {{ number_format($ticket->transaction->change_amount, 0, ',', '.') }}
+                                Invoice terakhir: {{ $ticket->transaction?->invoice_number ?? '-' }} |
+                                Metode: {{ strtoupper($ticket->transaction?->payment_method ?? '-') }}
                             </div>
                         </div>
                     @elseif(auth()->user()->can('pay', $ticket))
                         <form action="{{ route('services.pay', $ticket) }}" method="POST">
                             @csrf
+                            <div class="mb-2">
+                                <label class="form-label">Metode Pembayaran</label>
+                                <select name="payment_method" class="form-select" required>
+                                    <option value="cash" {{ old('payment_method')=='cash'?'selected':'' }}>Tunai</option>
+                                    <option value="transfer" {{ old('payment_method')=='transfer'?'selected':'' }}>Transfer</option>
+                                    <option value="qris" {{ old('payment_method')=='qris'?'selected':'' }}>QRIS</option>
+                                    <option value="debit" {{ old('payment_method')=='debit'?'selected':'' }}>Debit</option>
+                                    <option value="other" {{ old('payment_method')=='other'?'selected':'' }}>Lainnya</option>
+                                </select>
+                            </div>
+                            <div class="mb-2">
+                                <label class="form-label">Jumlah Dibayar (Rp)</label>
+                                <input type="number" name="paid_amount" class="form-control" min="1" step="1" value="{{ old('paid_amount', $dueTotal) }}" required>
+                                <div class="form-text">Isi kurang dari sisa untuk DP/parsial. Isi >= sisa untuk lunas.</div>
+                            </div>
                             <div class="mb-3">
-                                <label class="form-label">Jumlah Uang Diterima (Tunai / Rp)</label>
-                                <input type="number" name="paid_amount" class="form-control" min="{{ (int) $ticket->grand_total }}" step="1" value="{{ old('paid_amount', (int) $ticket->grand_total) }}" required>
+                                <label class="form-label">Catatan Pembayaran (opsional)</label>
+                                <input type="text" name="payment_notes" class="form-control" value="{{ old('payment_notes') }}" maxlength="500" placeholder="Ref transfer / catatan">
                             </div>
                             <button type="submit" class="btn btn-success w-100">
-                                <i class="bi bi-cash-coin me-1"></i> Bayar Lunas & Masuk Laporan POS
+                                <i class="bi bi-cash-coin me-1"></i> Simpan Pembayaran / Pelunasan
                             </button>
                         </form>
+                        @if($ticket->payment_status === 'partial')
+                            <div class="alert alert-warning mt-3 mb-0 small">Status: DP/Parsial. Sisa tagihan masih Rp {{ number_format($dueTotal, 0, ',', '.') }}.</div>
+                        @endif
                     @else
                         <div class="alert alert-info mb-0">
                             Jika pengerjaan sudah selesai, ubah status menjadi <strong>Selesai</strong> agar Kasir dapat memproses pembayaran.

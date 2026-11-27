@@ -18,6 +18,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class ServiceTicketController extends Controller
@@ -98,7 +99,6 @@ class ServiceTicketController extends Controller
             $validated['intake_photo_path'] = $request->file('intake_photo')->store('service-tickets/intake', 'public');
         }
         unset($validated['intake_photo']);
-        $validated['notify_customer'] = $request->boolean('notify_customer') && !empty($validated['customer_email']);
 
         $ticket = DB::transaction(function () use ($validated) {
             $today = now()->format('Ymd');
@@ -124,6 +124,7 @@ class ServiceTicketController extends Controller
                         'estimated_cost' => $validated['estimated_cost'] ?? 0,
                         'received_by'    => auth()->id(),
                         'status'         => 'antre',
+                        'payment_status' => 'unpaid',
                     ]);
 
                     ServiceTicketStatusHistory::create([
@@ -211,7 +212,7 @@ class ServiceTicketController extends Controller
             $validated['picked_up_at'] = now();
         }
         if (in_array($validated['status'], ['diambil', 'batal'], true)) {
-            $validated['device_password'] = null; // Retensi: hapus kredensial perangkat setelah selesai/diambil/batal
+            $validated['device_password'] = null;
         }
 
         $fromStatus = $service->status;
@@ -235,8 +236,8 @@ class ServiceTicketController extends Controller
     {
         $this->authorize('manageParts', $service);
 
-        if ($service->transaction_id) {
-            return back()->with('error', 'Tiket sudah dibayar, sparepart tidak dapat diubah.');
+        if ($service->transaction_id && $service->payment_status === 'paid') {
+            return back()->with('error', 'Tiket sudah lunas, sparepart tidak dapat diubah.');
         }
 
         $validated = $request->validate([
@@ -249,7 +250,7 @@ class ServiceTicketController extends Controller
             $qty = (int) $validated['quantity'];
 
             if ($product->stock < $qty) {
-                throw \Illuminate\Validation\ValidationException::withMessages([
+                throw ValidationException::withMessages([
                     'product_id' => "Stok {$product->name} tidak mencukupi (Tersisa: {$product->stock}).",
                 ]);
             }
@@ -294,8 +295,8 @@ class ServiceTicketController extends Controller
     {
         $this->authorize('manageParts', $service);
 
-        if ($service->transaction_id) {
-            return back()->with('error', 'Tiket sudah dibayar, sparepart tidak dapat dihapus.');
+        if ($service->transaction_id && $service->payment_status === 'paid') {
+            return back()->with('error', 'Tiket sudah lunas, sparepart tidak dapat dihapus.');
         }
 
         DB::transaction(function () use ($service, $part) {
@@ -334,38 +335,51 @@ class ServiceTicketController extends Controller
     {
         $this->authorize('pay', $service);
 
-        if ($service->transaction_id) {
-            return back()->with('error', 'Tiket servis ini sudah dibayar.');
-        }
-
-        $service->load('parts.product');
+        $service->load('parts.product', 'transaction');
         $grandTotal = (int) round($service->grand_total);
+        $alreadyPaid = (int) round((float) $service->paid_amount);
+        $remaining = max(0, $grandTotal - $alreadyPaid);
+
+        if ($service->payment_status === 'paid') {
+            return back()->with('error', 'Tiket servis ini sudah lunas.');
+        }
 
         if ($grandTotal <= 0) {
             return back()->with('error', 'Total tagihan Rp 0. Isi Biaya Jasa atau Sparepart terlebih dahulu.');
         }
 
         $validated = $request->validate([
-            'paid_amount' => ['required', 'numeric', "min:{$grandTotal}"],
+            'paid_amount' => ['required', 'numeric', 'min:1'],
+            'payment_method' => ['required', 'in:cash,transfer,qris,debit,other'],
+            'payment_notes' => ['nullable', 'string', 'max:500'],
         ]);
 
+        $paidNow = (int) round((float) $validated['paid_amount']);
+        $isFull = $paidNow >= $remaining;
+        $recordPaid = $isFull ? $remaining : $paidNow;
+        $changeAmount = $isFull ? ($paidNow - $remaining) : 0;
+        $newPaid = $alreadyPaid + $recordPaid;
+        $dueAmount = max(0, $grandTotal - $newPaid);
+        $paymentStatus = $dueAmount <= 0 ? 'paid' : 'partial';
         $fromStatus = $service->status;
-        DB::transaction(function () use ($service, $validated, $grandTotal, $fromStatus) {
-            $paidAmount = (int) round((float) $validated['paid_amount']);
-            $changeAmount = $paidAmount - $grandTotal;
+
+        DB::transaction(function () use ($service, $validated, $grandTotal, $recordPaid, $changeAmount, $dueAmount, $paymentStatus, $newPaid, $fromStatus) {
             $invoiceNumber = 'TRX-SRV-' . now()->format('YmdHis') . '-' . Str::upper(Str::random(4));
 
             $transaction = Transaction::create([
                 'invoice_number' => $invoiceNumber,
                 'user_id'        => auth()->id(),
                 'total'          => $grandTotal,
-                'payment_method' => 'cash',
-                'paid_amount'    => $paidAmount,
+                'payment_method' => $validated['payment_method'],
+                'paid_amount'    => $recordPaid,
                 'change_amount'  => $changeAmount,
+                'due_amount'     => $dueAmount,
                 'status'         => 'completed',
+                'payment_status' => $paymentStatus,
+                'payment_notes'  => $validated['payment_notes'] ?? null,
             ]);
 
-            if ((float) $service->service_fee > 0) {
+            if ((float) $service->service_fee > 0 && !$service->transaction_id) {
                 $category = Category::firstOrCreate(['name' => 'Jasa Servis']);
                 $jasaProduct = Product::firstOrCreate(
                     ['sku' => 'SRV-JASA'],
@@ -389,38 +403,61 @@ class ServiceTicketController extends Controller
                     'subtotal'     => (int) round((float) $service->service_fee),
                 ]);
             }
-            foreach ($service->parts as $part) {
+            if (!$service->transaction_id) {
+                foreach ($service->parts as $part) {
+                    $transaction->details()->create([
+                        'product_id'   => $part->product_id,
+                        'product_name' => $part->product->name . " ({$service->ticket_number})",
+                        'sku'          => $part->product->sku,
+                        'quantity'     => $part->quantity,
+                        'unit_price'   => (int) round((float) $part->unit_price),
+                        'subtotal'     => (int) round((float) $part->subtotal),
+                    ]);
+                }
+            } else {
                 $transaction->details()->create([
-                    'product_id'   => $part->product_id,
-                    'product_name' => $part->product->name . " ({$service->ticket_number})",
-                    'sku'          => $part->product->sku,
-                    'quantity'     => $part->quantity,
-                    'unit_price'   => (int) round((float) $part->unit_price),
-                    'subtotal'     => (int) round((float) $part->subtotal),
+                    'product_id'   => null,
+                    'product_name' => "Pelunasan Servis ({$service->ticket_number})",
+                    'sku'          => 'SRV-PAY',
+                    'quantity'     => 1,
+                    'unit_price'   => $recordPaid,
+                    'subtotal'     => $recordPaid,
                 ]);
             }
-            $service->update([
-                'transaction_id' => $transaction->id,
-                'status'         => 'diambil',
-                'completed_at'   => $service->completed_at ?? now(),
-                'picked_up_at'   => now(),
-                'device_password' => null, // Retensi: hapus kredensial perangkat setelah unit diambil
-            ]);
 
+            $updates = [
+                'transaction_id' => $transaction->id,
+                'payment_status' => $paymentStatus,
+                'paid_amount'    => $newPaid,
+                'due_amount'     => $dueAmount,
+            ];
+
+            if ($paymentStatus === 'paid') {
+                $updates['status'] = 'diambil';
+                $updates['completed_at'] = $service->completed_at ?? now();
+                $updates['picked_up_at'] = now();
+                $updates['device_password'] = null;
+            }
+
+            $service->update($updates);
+
+            $statusNote = $paymentStatus === 'paid' ? 'lunas' : 'DP/parsial';
             ServiceTicketStatusHistory::create([
                 'service_ticket_id' => $service->id,
                 'changed_by' => auth()->id(),
                 'from_status' => $fromStatus,
-                'to_status' => 'diambil',
-                'notes' => "Pembayaran servis lunas ({$transaction->invoice_number})",
+                'to_status' => $service->status,
+                'notes' => "Pembayaran servis {$statusNote} ({$transaction->invoice_number}), dibayar Rp " . number_format($recordPaid, 0, ',', '.'),
             ]);
         });
-        $service->refresh();
-        $this->notifyServiceStatus($service, $fromStatus ?? 'selesai', 'diambil', 'Pembayaran servis lunas');
 
-        return redirect()
-            ->route('services.show', $service)
-            ->with('success', 'Pembayaran servis berhasil! Transaksi tercatat di Riwayat & Laporan.');
+        $service->refresh();
+        $msg = $service->payment_status === 'paid'
+            ? 'Pembayaran servis lunas! Transaksi tercatat di Riwayat & Laporan.'
+            : 'DP/parsial berhasil dicatat. Sisa tagihan: Rp ' . number_format($service->due_amount, 0, ',', '.');
+        $this->notifyServiceStatus($service, $fromStatus ?? $service->status, $service->status, $msg);
+
+        return redirect()->route('services.show', $service)->with('success', $msg);
     }
 
     private function notifyServiceStatus(ServiceTicket $ticket, string $fromStatus, string $toStatus, ?string $note = null): void

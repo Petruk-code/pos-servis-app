@@ -65,6 +65,7 @@ class ServiceAuditAndPolicyTest extends TestCase
 
         $this->actingAs($kasir)->post(route('services.pay', $ticket), [
             'paid_amount' => 150000,
+            'payment_method' => 'cash',
         ])->assertRedirect();
 
         $ticket->refresh();

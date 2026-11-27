@@ -47,6 +47,8 @@ class PosController extends Controller
                 'integer',
                 'min:1',
             ],
+            'payment_method' => ['nullable', 'in:cash,transfer,qris,debit,other'],
+            'payment_notes' => ['nullable', 'string', 'max:500'],
         ]);
 
         $transaction = DB::transaction(function () use ($validated) {
@@ -97,14 +99,22 @@ class PosController extends Controller
             }
 
             $paidAmount = (int) $validated['paid_amount'];
+            $paymentMethod = $validated['payment_method'] ?? 'cash';
 
-            if ($paidAmount < $total) {
+            if ($paymentMethod === 'cash' && $paidAmount < $total) {
                 throw ValidationException::withMessages([
-                    'paid_amount' => 'Uang pembayaran tidak mencukupi.',
+                    'paid_amount' => 'Uang pembayaran tunai tidak mencukupi.',
+                ]);
+            }
+            if ($paymentMethod !== 'cash' && $paidAmount < $total) {
+                throw ValidationException::withMessages([
+                    'paid_amount' => 'Untuk non-tunai, nominal harus minimal total tagihan (catat sesuai pembayaran diterima).',
                 ]);
             }
 
-            $changeAmount = $paidAmount - $total;
+            $changeAmount = $paymentMethod === 'cash' ? max(0, $paidAmount - $total) : 0;
+            $recordPaid = $paymentMethod === 'cash' ? $paidAmount : $total;
+            $dueAmount = 0;
 
             $invoiceNumber = 'TRX-' . now()->format('YmdHis')
                 . '-' . Str::upper(Str::random(6));
@@ -113,10 +123,13 @@ class PosController extends Controller
                 'invoice_number' => $invoiceNumber,
                 'user_id' => auth()->id(),
                 'total' => $total,
-                'payment_method' => 'cash',
-                'paid_amount' => $paidAmount,
+                'payment_method' => $paymentMethod,
+                'paid_amount' => $recordPaid,
                 'change_amount' => $changeAmount,
+                'due_amount' => $dueAmount,
                 'status' => 'completed',
+                'payment_status' => 'paid',
+                'payment_notes' => $validated['payment_notes'] ?? null,
             ]);
 
             foreach ($transactionItems as $item) {

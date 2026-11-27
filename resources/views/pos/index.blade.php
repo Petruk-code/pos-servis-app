@@ -485,6 +485,9 @@ document.addEventListener('DOMContentLoaded', function () {
     const paymentError = document.getElementById('paymentError');
     const paymentSuccess = document.getElementById('paymentSuccess');
     const confirmPayment = document.getElementById('confirmPayment');
+    const paymentMethod = document.getElementById('paymentMethod');
+    const paymentNotes = document.getElementById('paymentNotes');
+    const paymentHint = document.getElementById('paymentHint');
 
     // Hitung total keranjang
     function getCartTotal() {
@@ -493,17 +496,48 @@ document.addEventListener('DOMContentLoaded', function () {
         }, 0);
     }
 
+    function validatePayment() {
+        const total = getCartTotal();
+        const paid = Number(paidAmount.value);
+        const method = paymentMethod.value;
+        const isCash = method === 'cash';
+        paymentHint.textContent = isCash ? 'Tunai: boleh lebih untuk kembalian.' : 'Non-tunai: nominal harus minimal total tagihan.';
+        const isValid = Number.isSafeInteger(paid) && paid > 0 && paid >= total;
+
+        if (!paidAmount.value || paid <= 0) {
+            changeAmount.value = formatRupiah(0);
+            paymentError.classList.add('d-none');
+            paymentSuccess.classList.add('d-none');
+            confirmPayment.disabled = true;
+            return;
+        }
+
+        if (isValid) {
+            const change = isCash ? (paid - total) : 0;
+            changeAmount.value = formatRupiah(change);
+            paymentError.classList.add('d-none');
+            paymentSuccess.classList.remove('d-none');
+            confirmPayment.disabled = false;
+        } else {
+            changeAmount.value = formatRupiah(0);
+            paymentError.classList.remove('d-none');
+            paymentSuccess.classList.add('d-none');
+            confirmPayment.disabled = true;
+        }
+    }
+
     // Ketika modal pembayaran dibuka
     paymentModal.addEventListener('show.bs.modal', function () {
         paymentTotal.value = formatRupiah(getCartTotal());
+        paymentMethod.value = 'cash';
+        paidAmount.value = getCartTotal();
+        paymentNotes.value = '';
+        validatePayment();
+    });
 
-        paidAmount.value = '';
-        changeAmount.value = formatRupiah(0);
-
-        paymentError.classList.add('d-none');
-        paymentSuccess.classList.add('d-none');
-
-        confirmPayment.disabled = true;
+    paymentMethod.addEventListener('change', function () {
+        if (this.value !== 'cash') paidAmount.value = getCartTotal();
+        validatePayment();
     });
 
     // Validasi pembayaran
@@ -556,8 +590,9 @@ document.addEventListener('DOMContentLoaded', function () {
         const paid = Number(paidAmount.value);
 
         // Validasi pembayaran
+        const method = paymentMethod.value;
         if (!Number.isFinite(paid) || paid < total) {
-            alert('Jumlah pembayaran tidak mencukupi.');
+            alert('Nominal pembayaran tidak valid / kurang dari total.');
             return;
         }
 
@@ -580,7 +615,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 },
                 body: JSON.stringify({
                     items: items,
-                    paid_amount: paid
+                    paid_amount: paid,
+                    payment_method: method,
+                    payment_notes: paymentNotes.value || null
                 })
             });
 

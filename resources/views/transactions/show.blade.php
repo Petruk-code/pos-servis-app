@@ -253,10 +253,23 @@
                     </span>
                 </div>
 
-                <div class="d-flex justify-content-between">
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Sisa Tagihan</span>
+                    <span>
+                        Rp {{ number_format($transaction->due_amount ?? 0, 0, ',', '.') }}
+                    </span>
+                </div>
+
+                <div class="d-flex justify-content-between mb-2">
                     <span>Metode Pembayaran</span>
                     <span>
-                        {{ ucfirst($transaction->payment_method) }}
+                        {{ strtoupper($transaction->payment_method) }}
+                    </span>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span>Status Bayar</span>
+                    <span>
+                        {{ strtoupper($transaction->payment_status ?? 'paid') }}
                     </span>
                 </div>
 
