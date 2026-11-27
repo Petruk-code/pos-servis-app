@@ -13,32 +13,22 @@ class ProductController extends Controller
 {
     public function index(Request $request): View
     {
-        // Mengambil kata kunci pencarian.
+        $this->authorize('viewAny', Product::class);
         $validated = $request->validate([
             'search' => ['nullable', 'string', 'max:100'],
         ]);
 
         $search = trim($validated['search'] ?? '');
 
-        // Query produk beserta kategori.
         $products = Product::with('category')
             ->when($search !== '', function ($query) use ($search) {
-
                 $query->where(function ($query) use ($search) {
-
-                    // Pencarian berdasarkan SKU.
                     $query->where('sku', 'like', "%{$search}%")
-
-                        // Pencarian berdasarkan nama produk.
                         ->orWhere('name', 'like', "%{$search}%")
-
-                        // Pencarian berdasarkan nama kategori.
                         ->orWhereHas('category', function ($categoryQuery) use ($search) {
                             $categoryQuery->where('name', 'like', "%{$search}%");
                         });
-
                 });
-
             })
             ->latest()
             ->paginate(10)
@@ -49,6 +39,7 @@ class ProductController extends Controller
 
     public function create(): View
     {
+        $this->authorize('create', Product::class);
         $categories = Category::where('is_active', true)
             ->orderBy('name')
             ->get();
@@ -58,6 +49,7 @@ class ProductController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
+        $this->authorize('create', Product::class);
         $validated = $request->validate([
             'category_id' => ['nullable', 'exists:categories,id'],
             'sku' => ['required', 'string', 'max:100', 'unique:products,sku'],
@@ -79,6 +71,7 @@ class ProductController extends Controller
 
     public function edit(Product $product): View
     {
+        $this->authorize('update', $product);
         $categories = Category::where('is_active', true)
             ->orderBy('name')
             ->get();
@@ -88,6 +81,7 @@ class ProductController extends Controller
 
     public function update(Request $request, Product $product): RedirectResponse
     {
+        $this->authorize('update', $product);
         $validated = $request->validate([
             'category_id' => ['nullable', 'exists:categories,id'],
             'sku' => [
@@ -112,6 +106,7 @@ class ProductController extends Controller
 
     public function destroy(Product $product): RedirectResponse
     {
+        $this->authorize('delete', $product);
         if ($product->transactionDetails()->exists()) {
             return redirect()->route('products.index')
                 ->with('error', 'Produk tidak dapat dihapus karena sudah digunakan dalam transaksi.');

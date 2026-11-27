@@ -13,6 +13,7 @@ class EmployeeController extends Controller
 {
     public function index(Request $request): View
     {
+        $this->authorize('viewAny', User::class);
         $search = trim($request->input('search', ''));
 
         $employees = User::with('role')
@@ -38,6 +39,7 @@ class EmployeeController extends Controller
 
     public function create(): View
     {
+        $this->authorize('create', User::class);
         $roles = Role::whereIn('name', ['kasir', 'gudang', 'teknisi'])
             ->orderBy('name')
             ->get();
@@ -47,6 +49,7 @@ class EmployeeController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
+        $this->authorize('create', User::class);
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'username' => ['required', 'string', 'max:255', 'unique:users,username'],
@@ -54,7 +57,7 @@ class EmployeeController extends Controller
             'password' => ['required', 'string', 'min:8'],
             'role_id' => [
                 'required',
-                Rule::exists('roles', 'id')->whereIn('name', ['kasir', 'gudang']),
+                Rule::exists('roles', 'id')->whereIn('name', ['kasir', 'gudang', 'teknisi']),
             ],
             'is_active' => ['required', 'boolean'],
         ]);
@@ -69,6 +72,7 @@ class EmployeeController extends Controller
     public function edit(User $employee): View
     {
         $this->ensureEmployeeRole($employee);
+        $this->authorize('update', $employee);
 
         $roles = Role::whereIn('name', ['kasir', 'gudang', 'teknisi'])
             ->orderBy('name')
@@ -80,6 +84,7 @@ class EmployeeController extends Controller
     public function update(Request $request, User $employee): RedirectResponse
     {
         $this->ensureEmployeeRole($employee);
+        $this->authorize('update', $employee);
 
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
@@ -117,6 +122,7 @@ class EmployeeController extends Controller
     public function destroy(User $employee): RedirectResponse
     {
         $this->ensureEmployeeRole($employee);
+        $this->authorize('delete', $employee);
 
         if (
             $employee->transactions()->exists() ||
