@@ -91,6 +91,28 @@
                             <td>{{ $ticket->accessories ?: '-' }}</td>
                         </tr>
                         <tr>
+                            <td class="text-muted">Checklist Masuk</td>
+                            <td>
+                                @if(!empty($ticket->intake_checklist))
+                                    <ul class="mb-0 ps-3 small">
+                                        @foreach($ticket->intake_checklist as $item)<li>{{ $item }}</li>@endforeach
+                                    </ul>
+                                @else - @endif
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Foto Masuk/Keluar</td>
+                            <td class="small">
+                                @if($ticket->intake_photo_path)<a href="{{ asset('storage/'.$ticket->intake_photo_path) }}" target="_blank">Foto Masuk</a>@endif
+                                @if($ticket->handover_photo_path)<span class="mx-1">|</span><a href="{{ asset('storage/'.$ticket->handover_photo_path) }}" target="_blank">Foto Keluar</a>@endif
+                                @if(!$ticket->intake_photo_path && !$ticket->handover_photo_path)-@endif
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Tanda Terima</td>
+                            <td class="small">Masuk: {{ $ticket->received_signature_name ?: '-' }} | Ambil: {{ $ticket->pickup_signature_name ?: '-' }}</td>
+                        </tr>
+                        <tr>
                             <td class="text-muted">Keluhan Awal</td>
                             <td class="text-danger fw-semibold">{{ $ticket->problem_description }}</td>
                         </tr>
@@ -105,7 +127,7 @@
             <div class="card shadow-sm border-0">
                 <div class="card-header bg-transparent fw-bold">Update Pengerjaan & Biaya Jasa</div>
                 <div class="card-body">
-                    <form action="{{ route('services.update', $ticket) }}" method="POST">
+                    <form action="{{ route('services.update', $ticket) }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         @method('PUT')
                         <div class="row g-3">
@@ -168,6 +190,22 @@
                                            {{ $ticket->transaction_id ? 'disabled' : '' }}>
                                     <label class="form-check-label" for="notify_customer_show">Kirim update status ke email</label>
                                 </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Foto Kondisi Masuk</label>
+                                <input type="file" name="intake_photo" class="form-control" accept="image/*" {{ $ticket->transaction_id ? 'disabled' : '' }}>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Foto Kondisi Keluar/Ambil</label>
+                                <input type="file" name="handover_photo" class="form-control" accept="image/*" {{ $ticket->transaction_id ? 'disabled' : '' }}>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Nama Penerima Masuk</label>
+                                <input type="text" name="received_signature_name" class="form-control" value="{{ old('received_signature_name', $ticket->received_signature_name) }}" {{ $ticket->transaction_id ? 'readonly' : '' }}>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Nama Pengambil</label>
+                                <input type="text" name="pickup_signature_name" class="form-control" value="{{ old('pickup_signature_name', $ticket->pickup_signature_name) }}" {{ $ticket->transaction_id ? 'readonly' : '' }}>
                             </div>
                         </div>
 

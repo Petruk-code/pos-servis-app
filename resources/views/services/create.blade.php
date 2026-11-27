@@ -14,7 +14,7 @@
         </a>
     </div>
 
-    <form action="{{ route('services.store') }}" method="POST">
+    <form action="{{ route('services.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
         <div class="row g-4">
             {{-- Kolom Kiri: Data Pelanggan & Perangkat --}}
@@ -80,6 +80,27 @@
                                 <label class="form-label">Kelengkapan yang Dititipkan</label>
                                 <input type="text" name="accessories" class="form-control"
                                        value="{{ old('accessories') }}" placeholder="Contoh: Unit + Charger Ori + Tas Laptop">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Checklist Kondisi/Kelengkapan</label>
+                                <div class="row g-1 small">
+                                    @foreach(['Unit fisik dicek','Charger','Tas/case','Baterai','RAM/SSD terpasang','Password/pola dicatat'] as $item)
+                                        <div class="col-md-6">
+                                            <label class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="intake_checklist[]" value="{{ $item }}" {{ in_array($item, old('intake_checklist', [])) ? 'checked' : '' }}>
+                                                <span class="form-check-label">{{ $item }}</span>
+                                            </label>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Foto Kondisi Masuk (opsional)</label>
+                                <input type="file" name="intake_photo" class="form-control" accept="image/*">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Nama Penyerah/Penerima</label>
+                                <input type="text" name="received_signature_name" class="form-control" value="{{ old('received_signature_name') }}" placeholder="Nama pelanggan/petugas">
                             </div>
                         </div>
                     </div>

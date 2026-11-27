@@ -84,10 +84,20 @@ class ServiceTicketController extends Controller
             'serial_number'      => ['nullable', 'string', 'max:100'],
             'device_password'    => ['nullable', 'string', 'max:100'],
             'accessories'        => ['nullable', 'string'],
+            'intake_checklist'   => ['nullable', 'array'],
+            'intake_checklist.*' => ['string', 'max:100'],
+            'intake_photo'       => ['nullable', 'image', 'max:4096'],
+            'received_signature_name' => ['nullable', 'string', 'max:150'],
             'problem_description' => ['required', 'string'],
             'estimated_cost'     => ['nullable', 'numeric', 'min:0'],
             'technician_id'      => ['nullable', 'exists:users,id'],
         ]);
+        $validated['notify_customer'] = $request->boolean('notify_customer') && !empty($validated['customer_email']);
+        $validated['intake_checklist'] = array_values($request->input('intake_checklist', []));
+        if ($request->hasFile('intake_photo')) {
+            $validated['intake_photo_path'] = $request->file('intake_photo')->store('service-tickets/intake', 'public');
+        }
+        unset($validated['intake_photo']);
         $validated['notify_customer'] = $request->boolean('notify_customer') && !empty($validated['customer_email']);
 
         $ticket = DB::transaction(function () use ($validated) {
@@ -177,8 +187,22 @@ class ServiceTicketController extends Controller
             'warranty_days'    => ['required', 'integer', 'min:0'],
             'customer_email'   => ['nullable', 'email', 'max:150'],
             'notify_customer'  => ['nullable', 'boolean'],
+            'intake_checklist' => ['nullable', 'array'],
+            'intake_checklist.*' => ['string', 'max:100'],
+            'intake_photo'     => ['nullable', 'image', 'max:4096'],
+            'handover_photo'   => ['nullable', 'image', 'max:4096'],
+            'received_signature_name' => ['nullable', 'string', 'max:150'],
+            'pickup_signature_name' => ['nullable', 'string', 'max:150'],
         ]);
         $validated['notify_customer'] = $request->boolean('notify_customer') && !empty($validated['customer_email'] ?? $service->customer_email);
+        $validated['intake_checklist'] = array_values($request->input('intake_checklist', $service->intake_checklist ?? []));
+        if ($request->hasFile('intake_photo')) {
+            $validated['intake_photo_path'] = $request->file('intake_photo')->store('service-tickets/intake', 'public');
+        }
+        if ($request->hasFile('handover_photo')) {
+            $validated['handover_photo_path'] = $request->file('handover_photo')->store('service-tickets/handover', 'public');
+        }
+        unset($validated['intake_photo'], $validated['handover_photo']);
 
         if ($validated['status'] === 'selesai' && !$service->completed_at) {
             $validated['completed_at'] = now();

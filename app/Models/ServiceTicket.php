@@ -19,6 +19,11 @@ class ServiceTicket extends Model
         'serial_number',
         'device_password',
         'accessories',
+        'intake_checklist',
+        'intake_photo_path',
+        'handover_photo_path',
+        'received_signature_name',
+        'pickup_signature_name',
         'problem_description',
         'technician_notes',
         'estimated_cost',
@@ -41,6 +46,7 @@ class ServiceTicket extends Model
             'picked_up_at' => 'datetime',
             'device_password' => 'encrypted',
             'notify_customer' => 'boolean',
+            'intake_checklist' => 'array',
         ];
     }
 
