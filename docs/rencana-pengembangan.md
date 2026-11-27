@@ -56,7 +56,7 @@ Belum layak produksi penuh:
 
 | ID | Item | Status | Kriteria Selesai |
 |---|---|---|---|
-| F2.1 | Notifikasi pelanggan | [ ] | Notifikasi WA/SMS/email untuk status penting (`dicek`, `menunggu_sparepart`, `selesai`, `diambil`) dengan opt-in/template. |
+| F2.1 | Notifikasi pelanggan | [~] | Email opsional ke pelanggan ditambahkan (opt-in `notify_customer` + `customer_email`) untuk status penting termasuk batal. WA/SMS/provider produksi dan template lanjutan masih pending. |
 | F2.2 | Bukti serah terima | [ ] | Checklist kelengkapan, foto masuk/keluar opsional, tanda terima/pengambilan tercatat. |
 | F2.3 | Pembayaran fleksibel | [ ] | Dukungan DP/pelunasan, metode non-tunai (minimal transfer/QRIS manual), sisa tagihan jelas. |
 | F2.4 | Garansi & riwayat pelanggan | [ ] | Lookup pelanggan/no HP/serial/tiket; riwayat servis perangkat; klaim garansi tercatat. |

@@ -78,6 +78,14 @@ SOP minimal:
 - Opsional untuk dev terkontrol: set `SEED_OWNER_PASSWORD`, `SEED_KASIR_PASSWORD`, `SEED_GUDANG_PASSWORD`, `SEED_TEKNISI_PASSWORD` sebelum `php artisan db:seed`. Jangan simpan nilai ini di file yang di-commit.
 - Sebelum produksi: ganti semua password default, nonaktifkan akun dummy, dan pastikan hanya akun aktif yang dibutuhkan.
 
+## Notifikasi Pelanggan (F2.1)
+
+- Notifikasi in-app internal tetap berjalan untuk owner/kasir/teknisi terkait.
+- Notifikasi pelanggan saat ini: **email opsional** via `customer_email` + checkbox `notify_customer` pada tiket servis.
+- Status yang memicu email pelanggan: `dicek`, `menunggu_sparepart`, `selesai`, `diambil`, `batal`.
+- Produksi memerlukan konfigurasi `MAIL_MAILER`, `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_FROM_*` di `.env`. Default dev `MAIL_MAILER=log`.
+- WA/SMS belum diimplementasikan; dapat ditambahkan sebagai channel berikutnya (provider + template + opt-in).
+
 ## Kebijakan Secret & Kredensial (F1.2)
 
 - **Jangan commit secret**: `.env`, `.env.*`, key/cert, token, dump DB dengan data sensitif. `.gitignore` mencakup `.env*` yang umum.
