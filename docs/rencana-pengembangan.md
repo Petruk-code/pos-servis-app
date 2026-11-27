@@ -43,7 +43,7 @@ Belum layak produksi penuh:
 
 | ID | Item | Status | Kriteria Selesai |
 |---|---|---|---|
-| F1.1 | Konfigurasi produksi aman | [ ] | `APP_ENV=production`, `APP_DEBUG=false`, `APP_URL` benar, HTTPS aktif, session secure/cookie aman. |
+| F1.1 | Konfigurasi produksi aman | [~] | `AppServiceProvider` force HTTPS saat production; `.env.example` diberi panduan secure cookie. Checklist deploy aktual (APP_DEBUG=false, APP_URL HTTPS, SESSION_SECURE_COOKIE=true) harus diverifikasi di staging/prod. |
 | F1.2 | Kebijakan secret & kredensial | [ ] | Secret hanya di env/secret manager; rotasi kredensial jika pernah terekspos. |
 | F1.3 | Retensi data sensitif | [ ] | Kebijakan `device_password`/data sensitif: enkripsi, akses terbatas, retensi/hapus setelah diambil. |
 | F1.4 | Otorisasi UI/policy polish | [ ] | Tombol/aksi UI sesuai policy; route/controller/view konsisten; tidak ada aksi tersembunyi yang bisa diakses langsung. |
