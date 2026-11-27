@@ -19,8 +19,12 @@ class TransactionController extends Controller
     {
         $this->authorize('viewAny', Transaction::class);
 
-        $search = trim($request->input('search', ''));
-        $date = $request->input('date');
+        $validated = $request->validate([
+            'search' => ['nullable', 'string', 'max:100'],
+            'date' => ['nullable', 'date'],
+        ]);
+        $search = trim($validated['search'] ?? '');
+        $date = $validated['date'] ?? null;
 
         $query = Transaction::with('user')
             ->when(auth()->user()->role?->name === 'kasir', function ($query) {

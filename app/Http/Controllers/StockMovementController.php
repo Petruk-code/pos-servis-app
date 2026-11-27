@@ -15,7 +15,10 @@ class StockMovementController extends Controller
     public function index(Request $request): View
     {
         abort_unless(auth()->user()->role?->name === 'owner', 403);
-        $search = trim($request->input('search', ''));
+        $validated = $request->validate([
+            'search' => ['nullable', 'string', 'max:100'],
+        ]);
+        $search = trim($validated['search'] ?? '');
 
         $movements = StockMovement::with(['product', 'user'])
             ->when($search !== '', function ($query) use ($search) {

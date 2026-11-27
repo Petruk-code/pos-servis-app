@@ -24,8 +24,12 @@ class ServiceTicketController extends Controller
     {
         $this->authorize('viewAny', ServiceTicket::class);
 
-        $status = $request->query('status');
-        $search = $request->query('search');
+        $validated = $request->validate([
+            'status' => ['nullable', 'in:antre,dicek,menunggu_sparepart,selesai,diambil,batal'],
+            'search' => ['nullable', 'string', 'max:100'],
+        ]);
+        $status = $validated['status'] ?? null;
+        $search = trim($validated['search'] ?? '');
 
         $likeOperator = DB::connection()->getDriverName() === 'pgsql' ? 'ilike' : 'like';
 

@@ -14,7 +14,10 @@ class EmployeeController extends Controller
     public function index(Request $request): View
     {
         $this->authorize('viewAny', User::class);
-        $search = trim($request->input('search', ''));
+        $validated = $request->validate([
+            'search' => ['nullable', 'string', 'max:100'],
+        ]);
+        $search = trim($validated['search'] ?? '');
 
         $employees = User::with('role')
             ->whereHas('role', function ($query) {

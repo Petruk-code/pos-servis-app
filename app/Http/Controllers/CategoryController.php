@@ -12,7 +12,10 @@ class CategoryController extends Controller
     public function index(Request $request): View
     {
         $this->authorize('viewAny', Category::class);
-        $search = trim($request->input('search', ''));
+        $validated = $request->validate([
+            'search' => ['nullable', 'string', 'max:100'],
+        ]);
+        $search = trim($validated['search'] ?? '');
 
         $categories = Category::when($search !== '', function ($query) use ($search) {
             $query->where(function ($query) use ($search) {

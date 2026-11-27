@@ -22,7 +22,10 @@ class CancellationRequestController extends Controller
     {
         $this->authorize('viewAny', CancellationRequest::class);
 
-        $search = trim($request->input('search', ''));
+        $validated = $request->validate([
+            'search' => ['nullable', 'string', 'max:100'],
+        ]);
+        $search = trim($validated['search'] ?? '');
 
         $cancellationRequests = CancellationRequest::with([
             'transaction',
