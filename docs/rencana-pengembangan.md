@@ -60,7 +60,7 @@ Belum layak produksi penuh:
 | F2.2 | Bukti serah terima | [~] | Checklist masuk, foto masuk/keluar opsional, nama penerima/pengambil ditambahkan di tiket servis. Tanda tangan digital/gambar dan cetak bukti khusus masih bisa ditingkatkan. |
 | F2.3 | Pembayaran fleksibel | [~] | DP/pelunasan servis, metode pembayaran cash/transfer/qris/debit/other, sisa tagihan dan status bayar tercatat. POS masih pembayaran penuh; akuntansi/rekonsiliasi lanjutan belum. |
 | F2.4 | Garansi & riwayat pelanggan | [~] | Riwayat servis by no HP/serial tampil di detail tiket; garansi dihitung dari picked_up/completed + warranty_days; klaim garansi bisa dicatat/diupdate. Lookup global pelanggan masih bisa diperdalam. |
-| F2.5 | SLA & estimasi | [ ] | Estimasi selesai, indikator overdue, reminder internal teknisi/kasir. |
+| F2.5 | SLA & estimasi | [~] | `estimated_finish_at` ditambah; indikator overdue di list/detail servis dan dashboard teknisi. Reminder internal otomatis (notifikasi/jadwal) belum. |
 | F2.6 | Cetak/nota operasional | [ ] | Nota servis/POS rapi, bisa dipakai printer thermal/A4 sesuai kebutuhan. |
 
 ## Fase 3 - Kontrol Bisnis & Integritas
