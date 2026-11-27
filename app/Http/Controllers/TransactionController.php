@@ -108,6 +108,16 @@ class TransactionController extends Controller
         ));
     }
 
+    public function printReceipt(Request $request, Transaction $transaction): View
+    {
+        $this->authorize('view', $transaction);
+        $format = $request->query('format', 'a4');
+        if (!in_array($format, ['a4', 'thermal'], true)) $format = 'a4';
+        $transaction->load(['user', 'details']);
+        $view = $format === 'thermal' ? 'transactions.print-thermal' : 'transactions.print-a4';
+        return view($view, compact('transaction', 'format'));
+    }
+
     public function requestCancellation(
         Request $request,
         Transaction $transaction

@@ -142,6 +142,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/services/{service}/parts', [ServiceTicketController::class, 'addPart'])->name('services.parts.add');
         Route::delete('/services/{service}/parts/{part}', [ServiceTicketController::class, 'removePart'])->name('services.parts.remove');
         Route::get('/services/{service}/print', [ServiceTicketController::class, 'printReceipt'])->name('services.print');
+        Route::get('/transactions/{transaction}/print', [TransactionController::class, 'printReceipt'])->name('transactions.print');
     });
 
     // Pembayaran Servis ke Kasir (Owner & Kasir)

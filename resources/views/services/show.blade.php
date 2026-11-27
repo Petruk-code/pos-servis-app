@@ -17,7 +17,7 @@
         </div>
         <div class="d-flex gap-2">
             @can('print', $ticket)
-            <a href="{{ route('services.print', $ticket) }}" target="_blank" class="btn btn-outline-dark">
+            <a href="{{ route('services.print', ['service' => $ticket, 'format' => 'a4']) }}" target="_blank" class="btn btn-outline-dark">
                 <i class="bi bi-printer me-1"></i> Cetak Tanda Terima / Nota
             </a>
             @endcan

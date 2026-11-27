@@ -334,12 +334,15 @@ class ServiceTicketController extends Controller
         return back()->with('success', 'Sparepart dihapus dan stok dikembalikan ke gudang.');
     }
 
-    public function printReceipt(ServiceTicket $service): View
+    public function printReceipt(Request $request, ServiceTicket $service): View
     {
         $this->authorize('print', $service);
 
+        $format = $request->query('format', 'a4');
+        if (!in_array($format, ['a4', 'thermal'], true)) $format = 'a4';
         $service->load(['technician', 'receiver', 'parts.product', 'transaction']);
-        return view('services.print', ['ticket' => $service]);
+        $view = $format === 'thermal' ? 'services.print-thermal' : 'services.print-a4';
+        return view($view, ['ticket' => $service, 'format' => $format]);
     }
 
     public function pay(Request $request, ServiceTicket $service): RedirectResponse

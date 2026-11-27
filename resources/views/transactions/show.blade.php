@@ -41,7 +41,7 @@
         @endcan
 
 
-        <button onclick="window.print()" class="btn btn-primary">
+        <a href="{{ route('transactions.print', ['transaction'=>$transaction,'format'=>'a4']) }}" target="_blank" class="btn btn-outline-primary">A4</a> <a href="{{ route('transactions.print', ['transaction'=>$transaction,'format'=>'thermal']) }}" target="_blank" class="btn btn-primary">
             Cetak
         </button>
 
