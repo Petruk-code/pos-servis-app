@@ -39,9 +39,11 @@
         Kelola akun karyawan, informasi pengguna, dan hak akses berdasarkan jabatan.
     </p>
 
+    @can('create', App\Models\User::class)
     <a href="{{ route('employees.create') }}" class="btn btn-primary">
         <i class="bi bi-plus-lg"></i> Tambah Karyawan
     </a>
+    @endcan
 </div>
 
 <div class="card border-0 shadow-sm">
@@ -150,11 +152,14 @@
                             <td class="text-center">
                                 <div class="d-flex justify-content-center gap-2">
 
+                                    @can('update', $employee)
                                     <a href="{{ route('employees.edit', $employee->id) }}"
                                         class="btn btn-sm btn-warning">
                                         Edit
                                     </a>
+                                    @endcan
 
+                                    @can('delete', $employee)
                                     <form
                                         action="{{ route('employees.destroy', $employee->id) }}"
                                         method="POST"
@@ -168,6 +173,7 @@
                                             Hapus
                                         </button>
                                     </form>
+                                    @endcan
 
                                 </div>
                             </td>

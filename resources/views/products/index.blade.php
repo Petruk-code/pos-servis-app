@@ -10,9 +10,11 @@
         Kelola seluruh data produk, harga, kategori, dan informasi stok.
     </p>
 
+    @can('create', App\Models\Product::class)
     <a href="{{ route('products.create') }}" class="btn btn-primary">
         <i class="bi bi-plus-lg"></i> Tambah Produk
     </a>
+    @endcan
 </div>
 
 {{-- Notifikasi --}}
@@ -131,11 +133,14 @@
                             </td>
 
                             <td>
+                                @can('update', $product)
                                 <a href="{{ route('products.edit', $product) }}"
                                    class="btn btn-sm btn-warning">
                                     Edit
                                 </a>
+                                @endcan
 
+                                @can('delete', $product)
                                 <form action="{{ route('products.destroy', $product) }}"
                                       method="POST"
                                       class="d-inline"
@@ -148,6 +153,7 @@
                                         Hapus
                                     </button>
                                 </form>
+                                @endcan
                             </td>
                         </tr>
 

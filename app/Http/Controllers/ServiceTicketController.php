@@ -210,7 +210,9 @@ class ServiceTicketController extends Controller
             $qty = (int) $validated['quantity'];
 
             if ($product->stock < $qty) {
-                abort(422, "Stok {$product->name} tidak mencukupi (Tersisa: {$product->stock}).");
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'product_id' => "Stok {$product->name} tidak mencukupi (Tersisa: {$product->stock}).",
+                ]);
             }
 
             $unitPrice = (float) $product->selling_price;

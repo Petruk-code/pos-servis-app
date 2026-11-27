@@ -16,9 +16,11 @@
             <p class="text-muted small mb-0">Diterima pada {{ $ticket->created_at->format('d M Y H:i') }} oleh {{ $ticket->receiver?->name ?? '-' }}</p>
         </div>
         <div class="d-flex gap-2">
+            @can('print', $ticket)
             <a href="{{ route('services.print', $ticket) }}" target="_blank" class="btn btn-outline-dark">
                 <i class="bi bi-printer me-1"></i> Cetak Tanda Terima / Nota
             </a>
+            @endcan
             <a href="{{ route('services.index') }}" class="btn btn-outline-secondary">
                 <i class="bi bi-arrow-left me-1"></i> Kembali
             </a>
@@ -160,7 +162,7 @@
             <div class="card shadow-sm border-0 mb-4">
                 <div class="card-header bg-transparent fw-bold">Sparepart / Komponen Terpakai</div>
                 <div class="card-body">
-                    @if(!$ticket->transaction_id)
+                    @can('manageParts', $ticket)
                         <form action="{{ route('services.parts.add', $ticket) }}" method="POST" class="row g-2 mb-3">
                             @csrf
                             <div class="col-md-7">
@@ -182,7 +184,7 @@
                                 </button>
                             </div>
                         </form>
-                    @endif
+                    @endcan
 
                     <div class="table-responsive">
                         <table class="table table-sm align-middle mb-0">
@@ -192,9 +194,9 @@
                                     <th class="text-center">Qty</th>
                                     <th class="text-end">Harga</th>
                                     <th class="text-end">Subtotal</th>
-                                    @if(!$ticket->transaction_id)
+                                    @can('manageParts', $ticket)
                                         <th class="text-center">Aksi</th>
-                                    @endif
+                                    @endcan
                                 </tr>
                             </thead>
                             <tbody>
@@ -204,7 +206,7 @@
                                         <td class="text-center">{{ $part->quantity }}</td>
                                         <td class="text-end">Rp {{ number_format($part->unit_price, 0, ',', '.') }}</td>
                                         <td class="text-end">Rp {{ number_format($part->subtotal, 0, ',', '.') }}</td>
-                                        @if(!$ticket->transaction_id)
+                                        @can('manageParts', $ticket)
                                             <td class="text-center">
                                                 <form action="{{ route('services.parts.remove', [$ticket, $part]) }}" method="POST" onsubmit="return confirm('Hapus sparepart ini dan kembalikan stok?')">
                                                     @csrf
@@ -214,11 +216,11 @@
                                                     </button>
                                                 </form>
                                             </td>
-                                        @endif
+                                        @endcan
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="{{ $ticket->transaction_id ? 4 : 5 }}" class="text-center text-muted py-3">Belum ada sparepart yang dipasang.</td>
+                                        <td colspan="{{ auth()->user()->can('manageParts', $ticket) ? 5 : 4 }}" class="text-center text-muted py-3">Belum ada sparepart yang dipasang.</td>
                                     </tr>
                                 @endforelse
                             </tbody>

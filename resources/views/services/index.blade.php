@@ -9,9 +9,11 @@
             <h4 class="fw-bold mb-1"><i class="bi bi-tools me-2"></i>Antrean Servis Komputer</h4>
             <p class="text-muted small mb-0">Kelola penerimaan unit, diagnosa teknisi, sparepart, dan pembayaran servis.</p>
         </div>
+        @can('create', App\Models\ServiceTicket::class)
         <a href="{{ route('services.create') }}" class="btn btn-primary">
             <i class="bi bi-plus-circle me-1"></i> Terima Servis Baru
         </a>
+        @endcan
     </div>
 
     {{-- Filter & Pencarian --}}

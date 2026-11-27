@@ -10,9 +10,11 @@
         Kelola kategori untuk mengelompokkan produk agar lebih terorganisir.
     </p>
 
+    @can('create', App\Models\Category::class)
     <a href="{{ route('categories.create') }}" class="btn btn-primary">
         <i class="bi bi-plus-lg"></i> Tambah Kategori
     </a>
+    @endcan
 </div>
 
 {{-- Notifikasi --}}
@@ -97,11 +99,14 @@
                             </td>
 
                             <td>
+                                @can('update', $category)
                                 <a href="{{ route('categories.edit', $category) }}"
                                    class="btn btn-sm btn-warning">
                                     Edit
                                 </a>
+                                @endcan
 
+                                @can('delete', $category)
                                 <form action="{{ route('categories.destroy', $category) }}"
                                       method="POST"
                                       class="d-inline"
@@ -114,6 +119,7 @@
                                         Hapus
                                     </button>
                                 </form>
+                                @endcan
                             </td>
                         </tr>
 
