@@ -911,5 +911,19 @@
     });
 </script>
 
+<script>
+document.addEventListener('submit', function (e) {
+  const form = e.target;
+  if (!form || form.dataset.submitted === '1') { e.preventDefault(); return; }
+  const btn = form.querySelector('button[type="submit"], input[type="submit"]');
+  if (btn) {
+    form.dataset.submitted = '1';
+    btn.disabled = true;
+    btn.dataset.originalText = btn.innerHTML;
+    if (btn.tagName === 'BUTTON') btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Memproses...';
+  }
+}, true);
+</script>
+
 </body>
 </html>
