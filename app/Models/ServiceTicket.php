@@ -82,6 +82,11 @@ class ServiceTicket extends Model
         return $this->hasMany(ServiceTicketStatusHistory::class)->latest();
     }
 
+    public function warrantyClaims()
+    {
+        return $this->hasMany(ServiceWarrantyClaim::class)->latest();
+    }
+
     // Total tagihan (Biaya Jasa + Total Sparepart)
     public function getGrandTotalAttribute(): float
     {
