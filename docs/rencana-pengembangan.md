@@ -1,0 +1,111 @@
+# Rencana Pengembangan POS Servis
+
+Dokumen ini menjadi acuan pengembangan agar aplikasi **POS Servis** layak dipakai untuk operasional usaha jasa servis komputer. Pengerjaan dilakukan **bertahap, satu per satu**, dan setiap item harus diverifikasi sebelum lanjut.
+
+## Prinsip Urutan
+
+- **Go-live adalah gerbang akhir**, bukan fase pertama. Persiapan go-live/final checklist dilakukan setelah fitur, hardening, dan UAT yang dibutuhkan lulus.
+- **Hardening dasar dimulai lebih awal** (staging, konfigurasi env, backup, keamanan dasar) agar pengembangan dan pengujian berjalan di lingkungan yang aman.
+- Item ditandai `[ ]` belum, `[~]` proses, `[x]` selesai. Update dokumen ini setiap fase selesai.
+
+## Status Saat Ini (Baseline)
+
+Sudah ada / selesai:
+- [x] POS transaksi, inventaris, kategori, stok, laporan dasar.
+- [x] Modul servis: tiket, sparepart, jasa, pembayaran servis, cetak tanda terima/nota.
+- [x] Role: Owner, Kasir, Gudang, Teknisi; dashboard per role.
+- [x] Policy/otorisasi object-level dasar + route middleware.
+- [x] Audit trail status servis.
+- [x] Notifikasi in-app status servis.
+- [x] Export CSV laporan.
+- [x] Command `db:backup` dan `db:restore` PostgreSQL.
+- [x] Encrypt `device_password` + migrasi data lama.
+- [x] Test fitur kritis dasar (service flow, audit/policy, POS/cancel) lulus.
+
+Belum layak produksi penuh:
+- [ ] Hardening produksi lengkap, SOP backup/restore teruji, UAT end-to-end, dan fitur operasional servis lanjutan.
+
+## Fase 0 - Baseline & Staging
+
+**Tujuan:** menyiapkan lingkungan kerja yang aman untuk implementasi dan pengujian.
+
+| ID | Item | Status | Kriteria Selesai |
+|---|---|---|---|
+| F0.1 | Inventaris konfigurasi `.env` | [x] | Daftar variabel wajib dev/staging/prod terdokumentasi; tidak ada secret di git. (`docs/konfigurasi-environment.md`, `.env.example` diperbarui) |
+| F0.2 | Staging environment | [ ] | Ada environment staging mirip produksi untuk UAT. |
+| F0.3 | DB user non-root | [~] | Panduan user PostgreSQL khusus ditambahkan; implementasi aktual di DB staging/prod perlu dilakukan saat environment tersedia. |
+| F0.4 | SOP backup/restore | [ ] | Jadwal backup, lokasi offsite/cloud/NAS, prosedur restore, dan uji restore tercatat. |
+| F0.5 | Data seed/akun default | [ ] | Password default seed diganti; akun dummy/nonaktif ditangani sebelum produksi. |
+
+## Fase 1 - Keamanan & Hardening Dasar
+
+**Tujuan:** menutup risiko dasar sebelum fitur operasional ditambah.
+
+| ID | Item | Status | Kriteria Selesai |
+|---|---|---|---|
+| F1.1 | Konfigurasi produksi aman | [ ] | `APP_ENV=production`, `APP_DEBUG=false`, `APP_URL` benar, HTTPS aktif, session secure/cookie aman. |
+| F1.2 | Kebijakan secret & kredensial | [ ] | Secret hanya di env/secret manager; rotasi kredensial jika pernah terekspos. |
+| F1.3 | Retensi data sensitif | [ ] | Kebijakan `device_password`/data sensitif: enkripsi, akses terbatas, retensi/hapus setelah diambil. |
+| F1.4 | Otorisasi UI/policy polish | [ ] | Tombol/aksi UI sesuai policy; route/controller/view konsisten; tidak ada aksi tersembunyi yang bisa diakses langsung. |
+| F1.5 | Audit log umum | [ ] | Log perubahan penting: user/role, harga/stok, pembatalan, setting, aksi sensitif. |
+| F1.6 | Validasi input & error handling | [ ] | Validasi server-side konsisten, pesan error aman, tidak bocor stack trace di produksi. |
+
+## Fase 2 - Operasional Servis
+
+**Tujuan:** membuat alur servis siap dipakai harian oleh usaha servis.
+
+| ID | Item | Status | Kriteria Selesai |
+|---|---|---|---|
+| F2.1 | Notifikasi pelanggan | [ ] | Notifikasi WA/SMS/email untuk status penting (`dicek`, `menunggu_sparepart`, `selesai`, `diambil`) dengan opt-in/template. |
+| F2.2 | Bukti serah terima | [ ] | Checklist kelengkapan, foto masuk/keluar opsional, tanda terima/pengambilan tercatat. |
+| F2.3 | Pembayaran fleksibel | [ ] | Dukungan DP/pelunasan, metode non-tunai (minimal transfer/QRIS manual), sisa tagihan jelas. |
+| F2.4 | Garansi & riwayat pelanggan | [ ] | Lookup pelanggan/no HP/serial/tiket; riwayat servis perangkat; klaim garansi tercatat. |
+| F2.5 | SLA & estimasi | [ ] | Estimasi selesai, indikator overdue, reminder internal teknisi/kasir. |
+| F2.6 | Cetak/nota operasional | [ ] | Nota servis/POS rapi, bisa dipakai printer thermal/A4 sesuai kebutuhan. |
+
+## Fase 3 - Kontrol Bisnis & Integritas
+
+**Tujuan:** memberi visibilitas bisnis dan kontrol data.
+
+| ID | Item | Status | Kriteria Selesai |
+|---|---|---|---|
+| F3.1 | Laporan laba | [ ] | Laba kotor jasa vs sparepart, HPP/margin dasar, filter periode. |
+| F3.2 | Closing kas harian | [ ] | Ringkasan kas masuk/keluar/metode bayar; rekonsiliasi kasir. |
+| F3.3 | Inventaris lanjutan | [ ] | Supplier/purchase order/stok opname/alert stok minimum. |
+| F3.4 | Export & arsip | [ ] | Export CSV/PDF sesuai kebutuhan, format rapi, akses dibatasi role. |
+
+## Fase 4 - Kualitas, Monitoring, Skalabilitas
+
+**Tujuan:** menjaga stabilitas saat dipakai nyata.
+
+| ID | Item | Status | Kriteria Selesai |
+|---|---|---|---|
+| F4.1 | Monitoring & error tracking | [ ] | Log terpusat/Sentry/alert error; health check dasar. |
+| F4.2 | Test cakupan kritis | [ ] | Test untuk permission boundaries, concurrency stok, pembayaran/cancel edge case, fitur baru. |
+| F4.3 | Performa & UX lapangan | [ ] | Mobile-friendly teknisi/kasir, pencarian cepat, cegah double submit, loading/feedback jelas. |
+| F4.4 | Proses release | [ ] | Checklist migration/deploy/rollback, changelog, versioning sederhana. |
+
+## Fase 5 - UAT, Pelatihan, Go-Live (Gerbang Akhir)
+
+**Tujuan:** memastikan sistem benar-benar siap dipakai usaha.
+
+| ID | Item | Status | Kriteria Selesai |
+|---|---|---|---|
+| F5.1 | UAT manual end-to-end | [ ] | Semua role uji alur nyata di staging: login, POS, servis, sparepart, bayar, cancel, nota, laporan, notifikasi. |
+| F5.2 | Uji backup/restore nyata | [ ] | Backup terjadwal berjalan; restore diuji di environment terpisah dan hasilnya valid. |
+| F5.3 | Pelatihan & SOP pengguna | [ ] | SOP singkat untuk Owner/Kasir/Gudang/Teknisi; akun produksi siap. |
+| F5.4 | Checklist go-live | [ ] | Domain/HTTPS, env produksi, queue/scheduler jika ada, monitoring aktif, rollback plan siap. |
+| F5.5 | Go-live & hypercare | [ ] | Deploy produksi, pemantauan awal, channel pelaporan bug, perbaikan cepat pasca rilis. |
+
+## Cara Kerja Eksekusi
+
+1. Pilih item berikutnya berdasarkan prioritas fase.
+2. Implementasi kode/migrasi/config/docs.
+3. Verifikasi: test otomatis relevan + uji manual alur terkait.
+4. Update status item di dokumen ini (`[ ]/[~]/[x]`) dan catat temuan.
+5. Lanjut item berikutnya hanya jika kriteria selesai terpenuhi.
+
+## Catatan Keputusan
+
+- **Pengujian manual utama** akan dilakukan pada `.env` lokal/lingkungan target, bukan hanya `.env.example`.
+- Fitur lanjutan (multi-cabang, payment gateway otomatis, integrasi eksternal) dipertimbangkan setelah Fase 5 stabil.
