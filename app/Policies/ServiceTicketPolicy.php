@@ -51,4 +51,11 @@ class ServiceTicketPolicy
     {
         return $this->view($user, $ticket);
     }
+
+    public function viewDevicePassword(User $user, ServiceTicket $ticket): bool
+    {
+        return $this->view($user, $ticket)
+            && in_array($user->role?->name, ['owner', 'teknisi'], true)
+            && !in_array($ticket->status, ['diambil', 'batal'], true);
+    }
 }

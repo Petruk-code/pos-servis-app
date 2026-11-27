@@ -65,11 +65,13 @@
                             <td class="text-muted">Password Perangkat</td>
                             <td>
                                 @if($ticket->device_password)
-                                    @if(in_array(auth()->user()->role?->name, ['owner', 'teknisi']))
+                                    @can('viewDevicePassword', $ticket)
                                         <code>{{ $ticket->device_password }}</code>
                                     @else
-                                        <span class="text-muted fst-italic">Disembunyikan (hanya Owner/Teknisi)</span>
-                                    @endif
+                                        <span class="text-muted fst-italic">Disembunyikan</span>
+                                    @endcan
+                                @elseif(in_array($ticket->status, ['diambil','batal'], true))
+                                    <span class="text-muted fst-italic">Dihapus setelah unit selesai/diambil (kebijakan retensi)</span>
                                 @else
                                     -
                                 @endif

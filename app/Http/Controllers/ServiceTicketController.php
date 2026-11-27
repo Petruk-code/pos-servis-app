@@ -178,6 +178,9 @@ class ServiceTicketController extends Controller
         if ($validated['status'] === 'diambil' && !$service->picked_up_at) {
             $validated['picked_up_at'] = now();
         }
+        if (in_array($validated['status'], ['diambil', 'batal'], true)) {
+            $validated['device_password'] = null; // Retensi: hapus kredensial perangkat setelah selesai/diambil/batal
+        }
 
         $fromStatus = $service->status;
         $service->update($validated);
@@ -369,6 +372,7 @@ class ServiceTicketController extends Controller
                 'status'         => 'diambil',
                 'completed_at'   => $service->completed_at ?? now(),
                 'picked_up_at'   => now(),
+                'device_password' => null, // Retensi: hapus kredensial perangkat setelah unit diambil
             ]);
 
             ServiceTicketStatusHistory::create([
