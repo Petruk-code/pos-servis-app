@@ -14,6 +14,7 @@ use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\CancellationRequestController;
 use App\Http\Controllers\ServiceTicketController;
 use App\Http\Controllers\SupplierController;
+use App\Http\Controllers\StockOpnameController;
 
 // Halaman utama diarahkan ke login
 Route::get('/', function () {
@@ -134,6 +135,11 @@ Route::middleware('auth')->group(function () {
 
         Route::post('/stock-movements', [StockMovementController::class, 'store'])
             ->name('stock-movements.store');
+
+        Route::get('/stock-opname', [StockOpnameController::class, 'create'])
+            ->name('stock-opname.create');
+        Route::post('/stock-opname', [StockOpnameController::class, 'store'])
+            ->name('stock-opname.store');
     });
 
     // Modul Servis (Owner, Kasir, Teknisi)

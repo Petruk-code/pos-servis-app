@@ -531,6 +531,7 @@
                     </a>
 
                     <a href="{{ route('suppliers.index') }}" class="nav-link sidebar-menu {{ request()->routeIs('suppliers.*') ? 'active' : '' }}" title="Supplier"><i class="bi bi-truck"></i><span class="menu-label">Supplier</span></a>
+                <a href="{{ route('stock-opname.create') }}" class="nav-link sidebar-menu {{ request()->routeIs('stock-opname.*') ? 'active' : '' }}" title="Stok Opname"><i class="bi bi-clipboard-check"></i><span class="menu-label">Stok Opname</span></a>
                 <a href="{{ route('stock-movements.index') }}"
                        class="nav-link sidebar-menu {{ request()->routeIs('stock-movements.*') ? 'active' : '' }}"
                        title="Riwayat Pergerakan Stok">
@@ -580,6 +581,7 @@
                 </a>
 
                 <a href="{{ route('suppliers.index') }}" class="nav-link sidebar-menu {{ request()->routeIs('suppliers.*') ? 'active' : '' }}" title="Supplier"><i class="bi bi-truck"></i><span class="menu-label">Supplier</span></a>
+                <a href="{{ route('stock-opname.create') }}" class="nav-link sidebar-menu {{ request()->routeIs('stock-opname.*') ? 'active' : '' }}" title="Stok Opname"><i class="bi bi-clipboard-check"></i><span class="menu-label">Stok Opname</span></a>
                 <a href="{{ route('stock-movements.index') }}"
                    class="nav-link sidebar-menu {{ request()->routeIs('stock-movements.*') ? 'active' : '' }}"
                    title="Riwayat Pergerakan Stok">
